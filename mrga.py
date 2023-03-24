@@ -56,14 +56,16 @@ class Node:
     def select_child(self):
         for child in self.children:
             if child.visits == 0:
+                print(111,child)
                 return child
         max_ucb = float("-inf")
-        selected_child = None
+        selected_child = None 
         for child in self.children:
             ucb = child.reward / child.visits + np.sqrt(2 * np.log(self.visits) / child.visits)
             if ucb > max_ucb:
                 max_ucb = ucb
                 selected_child = child
+        print(222,selected_child)
         return selected_child
 
     def expand(self):
