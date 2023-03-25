@@ -5,16 +5,16 @@
 from __future__ import print_function
 import sys
 import numpy as np
-import rospy
-import cv2
+# import rospy
+# import cv2
 import time
 import re
 import yaml
 import csv
-from std_msgs.msg import String
+# from std_msgs.msg import String
 from linecache import getline
-from std_srvs.srv import Empty, EmptyResponse
-from mrga_msgs.srv import CapabilityAnalyser, CapabilityAnalyserResponse
+# from std_srvs.srv import Empty, EmptyResponse
+# from mrga_msgs.srv import CapabilityAnalyser, CapabilityAnalyserResponse
 
 
 
@@ -24,11 +24,12 @@ class capabilities_analyser(object):
         #=======================================================================
         # constructor
         #=======================================================================
-        rospy.init_node('capabilities_analyser')
-        rospy.Service('capabilities_analyser', CapabilityAnalyser, self.serviceCall)
+        # rospy.init_node('capabilities_analyser')
+        # rospy.Service('capabilities_analyser', CapabilityAnalyser, self.serviceCall)
         #=======================================================================
         # Initialisation
         #=======================================================================
+        self.serviceCall()
         self.capabilities_recognised = False
         self.goals_indx_allocated = False
 
@@ -38,8 +39,8 @@ class capabilities_analyser(object):
         #=======================================================================
         self.goals_file = req.goals_file
         self.robot_file = req.robot_file
-        self.mission_constrains_directory = rospy.get_param('~mission_constrains_directory')
-        self.ontology_directory = rospy.get_param('~ontology_directory')
+        self.mission_constrains_directory = '../config/'
+        self.ontology_directory = 'ontology_mrga.yaml'
         self.load_goals_cap_ontology()
         self.load_capabilities()
         if (self.capabilities_recognised):
@@ -142,9 +143,9 @@ if __name__ == '__main__':
     #===========================================================================
 	# Main method
 	#===========================================================================
-    try:
+    # try:
         capabilities_analyser = capabilities_analyser()
-        rospy.spin()
+        # rospy.spin()
 
-    except rospy.ROSInterruptException:
-        pass
+    # except rospy.ROSInterruptException:
+    #     pass
