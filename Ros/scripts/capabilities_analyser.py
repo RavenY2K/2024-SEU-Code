@@ -8,6 +8,7 @@ import numpy as np
 # import rospy
 # import cv2
 import time
+import os
 import re
 import yaml
 import csv
@@ -33,13 +34,17 @@ class capabilities_analyser(object):
         self.capabilities_recognised = False
         self.goals_indx_allocated = False
 
-    def serviceCall(self, req):
+    def serviceCall(self):
+        # std::string filename("mrga_waypoints.txt");
+		# std::string goal_filename("mrga_goals.txt");
+		# std::string robot_filename("mrga_robots.txt");
+		# std::string fixed_frame("world");
         #=======================================================================
         # System inputs to implement the capability analysis
         #=======================================================================
-        self.goals_file = req.goals_file
-        self.robot_file = req.robot_file
-        self.mission_constrains_directory = '../config/'
+        self.goals_file = './Ros/scripts/mrga_tp/mrga_goals.txt'
+        self.robot_file = './Ros/scripts/mrga_tp/mrga_robots.txt'
+        self.mission_constrains_directory = './Ros/config/'
         self.ontology_directory = 'ontology_mrga.yaml'
         self.load_goals_cap_ontology()
         self.load_capabilities()
@@ -82,7 +87,7 @@ class capabilities_analyser(object):
         # input: robot_file and goals_file redundancy
         # output: index of the possible tasks to be implemented for the robot
         #=======================================================================
-        try:
+        # try:
             print('Reading file %s' %self.goals_file)
             goals_ifile = open(self.goals_file, "rw+")
             self.goal_file_lines = 0
@@ -130,8 +135,8 @@ class capabilities_analyser(object):
                             self.redundancy_set.append([self.robot_name, no_sensors])
 
             self.capabilities_recognised = True
-        except:
-            print('Unable to read the indicated file')
+        # except:
+        #     print('Unable to read the indicated file')
     #===========================================================================
     # load the redundancy associated with the goals
     #===========================================================================
