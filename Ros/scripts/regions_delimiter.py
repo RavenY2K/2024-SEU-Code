@@ -5,18 +5,18 @@
 from __future__ import print_function
 import sys
 import numpy as np
-import rospy
-import cv2
+# import rospy
+# import cv2
 import time
 import re
 import yaml
 import csv
-from std_msgs.msg import String
+# from std_msgs.msg import String
 from scipy.optimize import linear_sum_assignment
 from collections import Counter
 from linecache import getline
-from std_srvs.srv import Empty, EmptyResponse
-from mrga_msgs.srv import RegionsDelimiter, RegionsDelimiterResponse
+# from std_srvs.srv import Empty, EmptyResponse
+# from mrga_msgs.srv import RegionsDelimiter, RegionsDelimiterResponse
 
 class regions_delimiter(object):
 
@@ -24,8 +24,9 @@ class regions_delimiter(object):
         #=======================================================================
         # constructor
         #=======================================================================
-        rospy.init_node('regions_delimiter')
-        rospy.Service('regions_delimiter', RegionsDelimiter, self.serviceCall)
+        # rospy.init_node('regions_delimiter')
+        # rospy.Service('regions_delimiter', RegionsDelimiter, self.serviceCall)
+        self.serviceCall()
         #=======================================================================
         # Initialisation
         #=======================================================================
@@ -33,23 +34,25 @@ class regions_delimiter(object):
         self.allocation_finished = False
         self.constraints_array = []
 
-    def serviceCall(self, req):
+    def serviceCall(self):
         #=======================================================================
         # System inputs to stablish the regions and distribute the goals
         #=======================================================================
-        self.mission_constrains_directory = rospy.get_param('~mission_constrains_directory')
-        self.ontology_directory = rospy.get_param('~ontology_directory')
-        self.allocation_approach = req.allocation_approach
-        self.waypoint_file = req.waypoints_file
-        self.goals_file = req.goals_file
-        self.robot_file = req.robot_file
-        self.center_no = req.robots_number
-        self.robots_number = req.robots_number
+        self.mission_constrains_directory = './Ros/config/'
+        self.ontology_directory = 'ontology_mrga.yaml'
+        self.allocation_approach = 'MRGA'
+        self.goals_file = './Ros/scripts/mrga_tp/mrga_goals.txt'
+        self.robot_file = './Ros/scripts/mrga_tp/mrga_robots.txt'
+        self.waypoint_file = './Ros/scripts/mrga_tp/mrga_waypoints.txt'
+
+        with open(self.robot_file) as f:
+             self.center_no = sum(1 for line in f)
+             self.robots_number = self.center_no
         self.total_iteration = 500
         #=======================================================================
         # Task Allocation strategy considering heterogeneous robots which is
         #  based on k-means algorithm and task makespans
-        #  info: we start assuming we know the coordinates of mission goals
+        #  info: we start assuming we know the coordinates of mission goalsimage.png
         #=======================================================================
         if(self.allocation_approach.find("MRGA") != -1):
             print("***************************************************************************************")
@@ -66,7 +69,7 @@ class regions_delimiter(object):
                 self.mrga_strategy()
                 self.goal_allocation()
                 self.save_goals()
-                return RegionsDelimiterResponse(self.allocation_finished, len(self.allocation_results))
+                # return RegionsDelimiterResponse(self.allocation_finished, len(self.allocation_results))
 
         else:
             print('MRGA: Fleet characteristics were not properly defined ')
@@ -363,7 +366,7 @@ class regions_delimiter(object):
         self.goal_description = []
         try:
             print('Reading file %s' %self.waypoint_file)
-            ifile = open(self.waypoint_file, "rw+")
+            ifile = open(self.waypoint_file, "r+")
             lines = 0
             for line in open(self.waypoint_file):
                 lines += 1
@@ -374,7 +377,7 @@ class regions_delimiter(object):
                 curr = reader.find("[")
                 name = reader[:curr]
 
-                test_ifile = open(self.goals_file, "rw+")
+                test_ifile = open(self.goals_file, "r+")
                 test_lines = 0
                 for test_line in open(self.goals_file):
                     test_lines += 1
@@ -413,7 +416,7 @@ class regions_delimiter(object):
                 #===============================================================
                 # Append the goals and robots data in different arrays
                 #===============================================================
-                robot_ifile = open(self.robot_file, "rw+")
+                robot_ifile = open(self.robot_file, "r+")
                 robot_lines = 0
                 for robot_line in open(self.robot_file):
                     robot_lines += 1
@@ -449,8 +452,8 @@ class regions_delimiter(object):
         self.tasks_index = []
         self.goal_redundancy = []
         for self.i_line in range(0, self.robots_number):
-            self.goal_distribution_data = open(str(self.mission_constrains_directory)+ 'goals_indx_distribution.txt', 'rw')
-            self.goal_redundancy_data = open(str(self.mission_constrains_directory)+ 'goals.txt', 'rw')
+            self.goal_distribution_data = open(str(self.mission_constrains_directory)+ 'goals_indx_distribution.txt', 'r+')
+            self.goal_redundancy_data = open(str(self.mission_constrains_directory)+ 'goals.txt', 'r+')
             self.indx_line = self.goal_distribution_data.readlines()
             self.indx_line = self.indx_line[self.i_line]
             self.goal_distribution_data.close()
@@ -551,9 +554,9 @@ if __name__ == '__main__':
     #===========================================================================
 	# Main method
 	#===========================================================================
-    try:
+    # try:
         regions_delimiter = regions_delimiter()
-        rospy.spin()
+        # rospy.spin()
 
-    except rospy.ROSInterruptException:
-        pass
+    # except rospy.ROSInterruptException:
+        # pass
