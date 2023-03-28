@@ -76,7 +76,7 @@ class capabilities_analyser(object):
             print("*                                                                                     *")
             print("*                                                                                     *")
             print("***************************************************************************************")
-            return CapabilityAnalyserResponse(len(self.robot_set),self.goals_indx_allocated)
+            # return CapabilityAnalyserResponse(len(self.robot_set),self.goals_indx_allocated)
 
 
     def load_capabilities(self):
@@ -89,7 +89,7 @@ class capabilities_analyser(object):
         #=======================================================================
         # try:
             print('Reading file %s' %self.goals_file)
-            goals_ifile = open(self.goals_file, "rw+")
+            goals_ifile = open(self.goals_file, "r+")
             self.goal_file_lines = 0
             for goals_line in open(self.goals_file):
                 self.goal_file_lines += 1
@@ -108,7 +108,7 @@ class capabilities_analyser(object):
                 self.goals_capability_name = self.ontology_list['capability'][str(self.goals_name)]
                 if not self.goals_line_no in self.goal_set:
                     self.goal_set.append(self.goals_line_no)
-                robot_ifile = open(self.robot_file, "rw+")
+                robot_ifile = open(self.robot_file, "r+")
                 self.robot_file_lines = 0
                 for robot_line in open(self.robot_file):
                     self.robot_file_lines += 1
