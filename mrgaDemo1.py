@@ -1,5 +1,30 @@
 import random
 import math
+import pickle
+
+class Robot:
+    def __init__(self, x, y, abilities):
+        self.x = x
+        self.y = y
+        self.abilities = abilities
+        self.task_times = []
+
+    def can_do(self, task):
+        return task is not None and task.ability in self.abilities
+
+    def do_task(self, task):
+        distance = math.sqrt((self.x - task.x) ** 2 + (self.y - task.y) ** 2)
+        # self.task_times.append(distance / task.ability) 为啥除以ability
+        self.task_times.append(distance)
+
+    def get_time(self):
+        return sum(self.task_times)
+
+class Task:
+    def __init__(self, x, y, ability):
+        self.x = x
+        self.y = y
+        self.ability = ability
 
 class State:
     def __init__(self, robots, tasks):
@@ -30,29 +55,6 @@ class State:
     def __str__(self):
         return f"State(robots={self.robots}, tasks={self.tasks})"
 
-class Robot:
-    def __init__(self, x, y, abilities):
-        self.x = x
-        self.y = y
-        self.abilities = abilities
-        self.task_times = []
-
-    def can_do(self, task):
-        return task is not None and task.ability in self.abilities
-
-    def do_task(self, task):
-        distance = math.sqrt((self.x - task.x) ** 2 + (self.y - task.y) ** 2)
-        self.task_times.append(distance / task.ability)
-
-    def get_time(self):
-        return sum(self.task_times)
-
-class Task:
-    def __init__(self, x, y, ability):
-        self.x = x
-        self.y = y
-        self.ability = ability
-
 class Node:
     def __init__(self, state, parent, action):
         self.state = state
@@ -76,6 +78,9 @@ class Node:
 
     def is_fully_expanded(self):
         return not self.untried_actions
+
+    def is_terminal(self):
+        return self.state.is_terminal()
 
     def select_child(self, exploration_constant=1.4):
         max_score = -1
@@ -117,16 +122,42 @@ class MCTS:
                 best_child = child
         return best_child.action
 
-#生成随机任务和机器人
-tasks = []
-for i in range(10):
-    task = Task(random.uniform(0, 10), random.uniform(0, 10), random.randint(1, 3))
-    tasks.append(task)
+# #生成随机任务和机器人
+# tasks = []
+# for i in range(10):
+#     task = Task(round(random.uniform(0, 10), 2), round(random.uniform(0, 10), 2), random.randint(1, 3))
+#     tasks.append(task)
+ 
+# # 保存为txt文件
+filenameA = './config/tasks.data'
+# with open(filename, 'wb') as file:
+#     pickle.dump(tasks, file)
 
-robots = [
-Robot(random.uniform(0, 10), random.uniform(0, 10), [random.randint(1, 3)])
-for _ in range(3)
-]
+# 从txt文件读取
+with open(filenameA, 'rb') as file:
+    tasks = pickle.load(file)
+
+# 输出数组
+for task in tasks:
+    print(task.x, task.y, task.ability)
+
+
+# robots = [
+# Robot(random.randint(0, 10), random.randint(0, 10), [random.randint(1, 3)])
+# for _ in range(3)
+# ]
+ 
+filenameB = './config/robots.data'
+# with open(filenameB, 'wb') as file:
+#     pickle.dump(robots, file)
+
+# 从txt文件读取
+with open(filenameB, 'rb') as file:
+    robots = pickle.load(file)
+
+# 输出数组
+for robot in robots:
+    print(robot.x, robot.y, robot.abilities)
 
 #初始化状态
 state = State(robots, tasks)
