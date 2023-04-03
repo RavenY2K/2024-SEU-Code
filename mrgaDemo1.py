@@ -14,7 +14,7 @@ class Robot:
 
     def do_task(self, task):
         distance = math.sqrt((self.x - task.x) ** 2 + (self.y - task.y) ** 2)
-        # self.task_times.append(distance / task.ability) 为啥除以ability
+        # self.task_times.append(distance / task.ability) ability似乎代表了能力强度而不是ABC等等能力种类
         self.task_times.append(distance)
 
     def get_time(self):
@@ -78,6 +78,9 @@ class Node:
 
     def is_fully_expanded(self):
         return not self.untried_actions
+    
+    def reward(self):
+        return self.state.get_reward()
 
     def is_terminal(self):
         return self.state.is_terminal()
@@ -86,12 +89,13 @@ class Node:
         max_score = -1
         selected_child = None
         for child in self.children:
-            score = child.reward / child.visits + exploration_constant * math.sqrt(
-                2 * math.log(self.visits) / child.visits
-        )
-        if score > max_score:
-            max_score = score
-            selected_child = child
+            score = (
+                child.reward / child.visits
+                + 1.41 * math.sqrt(2 * math.log(self.visits) / child.visits)
+            )
+            if score > max_score:
+                max_score = score
+                selected_child = child
         return selected_child
 
     def backpropagate(self, reward):
@@ -105,12 +109,13 @@ class MCTS:
         self.root = Node(state, None, None)
 
     def run(self, max_iterations):
-        for _ in range(max_iterations):
+        for i in range(max_iterations):
+            print('@@@@',i)
             node = self.root
             while not node.is_terminal():
                 if not node.is_fully_expanded():
                     child = node.expand()
-                    return child.reward
+                    node = child
                 else:
                     node = node.select_child()
             reward = node.state.get_reward() 
@@ -148,8 +153,7 @@ for task in tasks:
 # ]
  
 filenameB = './config/robots.data'
-# with open(filenameB, 'wb') as file:
-#     pickle.dump(robots, file)
+
 
 # 从txt文件读取
 with open(filenameB, 'rb') as file:
@@ -157,7 +161,12 @@ with open(filenameB, 'rb') as file:
 
 # 输出数组
 for robot in robots:
+    if robot.x == 1:
+        robot.abilities.append(2)
     print(robot.x, robot.y, robot.abilities)
+
+# with open(filenameB, 'wb') as file:
+#     pickle.dump(robots, file)
 
 #初始化状态
 state = State(robots, tasks)
