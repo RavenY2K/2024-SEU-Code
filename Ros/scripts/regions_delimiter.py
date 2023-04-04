@@ -21,6 +21,7 @@ from linecache import getline
 class regions_delimiter(object):
 
     def __init__(self):
+
         #=======================================================================
         # constructor
         #=======================================================================
@@ -33,6 +34,9 @@ class regions_delimiter(object):
         self.params_loaded = False
         self.allocation_finished = False
         self.constraints_array = []
+
+
+
 
     def serviceCall(self):
         #=======================================================================
@@ -224,8 +228,8 @@ class regions_delimiter(object):
             #===================================================================
             # weights factor
             #===================================================================
-            alpha = 0.25
-            beta = 0.20
+            alpha = 0.5
+            beta = 0.5
             for goal_set_indx in range(0, len(self.goals_index)):
                 self.costfunc = []
                 self.makespan_value = []
@@ -555,8 +559,15 @@ if __name__ == '__main__':
 	# Main method
 	#===========================================================================
     # try:
+
+        start_time = time.time()
+
         regions_delimiter = regions_delimiter()
         # rospy.spin()
+
+        
+        end_time = time.time()
+        print(end_time-start_time)
 
     # except rospy.ROSInterruptException:
         # pass

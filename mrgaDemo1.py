@@ -14,6 +14,8 @@ class Robot:
 
     def do_task(self, task):
         distance = math.sqrt((self.x - task.x) ** 2 + (self.y - task.y) ** 2)
+        self.x = task.x
+        self.y = task.y
         # self.task_times.append(distance / task.ability) ability似乎代表了能力强度而不是ABC等等能力种类
         self.task_times.append(distance)
 
@@ -90,9 +92,12 @@ class Node:
         selected_child = None
         for child in self.children:
             score = (
-                child.reward / child.visits
+                0 - child.visits / child.reward
                 + 1.41 * math.sqrt(2 * math.log(self.visits) / child.visits)
             )
+            # print ('===')
+            # print(0 - child.reward / child.visits)
+            # print(1.41 * math.sqrt(2 * math.log(self.visits) / child.visits))
             if score > max_score:
                 max_score = score
                 selected_child = child
@@ -109,8 +114,7 @@ class MCTS:
         self.root = Node(state, None, None)
 
     def run(self, max_iterations):
-        for i in range(max_iterations):
-            print('@@@@',i)
+        for _ in range(max_iterations):
             node = self.root
             while not node.is_terminal():
                 if not node.is_fully_expanded():
@@ -151,13 +155,22 @@ for task in tasks:
 # Robot(random.randint(0, 10), random.randint(0, 10), [random.randint(1, 3)])
 # for _ in range(3)
 # ]
- 
-filenameB = './config/robots.data'
 
+
+filenameB = './config/robots.data' #二进制数据
+mapData = 'Ros\scripts\mrga_tp\mrga_waypoints.txt'
+
+# 从txt文件读取
+with open(mapData, 'r') as file:
+    for line in file:
+        print(line)
+        pass
+    robots = pickle.load(file)
 
 # 从txt文件读取
 with open(filenameB, 'rb') as file:
     robots = pickle.load(file)
+
 
 # 输出数组
 for robot in robots:

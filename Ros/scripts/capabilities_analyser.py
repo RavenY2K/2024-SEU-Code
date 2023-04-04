@@ -149,8 +149,13 @@ if __name__ == '__main__':
 	# Main method
 	#===========================================================================
     # try:
+        start_time = time.time()
         capabilities_analyser = capabilities_analyser()
+
         # rospy.spin()
+        
+        end_time = time.time()
+        print(end_time-start_time)
 
     # except rospy.ROSInterruptException:
     #     pass
