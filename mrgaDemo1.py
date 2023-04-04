@@ -1,9 +1,12 @@
 import random
 import math
+import re
+import time
 import pickle
 
 class Robot:
-    def __init__(self, x, y, abilities):
+    def __init__(self, name, x, y, abilities):
+        self.name = name
         self.x = x
         self.y = y
         self.abilities = abilities
@@ -13,7 +16,7 @@ class Robot:
         return task is not None and task.ability in self.abilities
 
     def do_task(self, task):
-        distance = math.sqrt((self.x - task.x) ** 2 + (self.y - task.y) ** 2)
+        distance = math.sqrt((float(self.x) - float(task.x)) ** 2 + (float(self.y) - float(task.y)) ** 2)
         self.x = task.x
         self.y = task.y
         # self.task_times.append(distance / task.ability) ability似乎代表了能力强度而不是ABC等等能力种类
@@ -27,6 +30,7 @@ class Task:
         self.x = x
         self.y = y
         self.ability = ability
+
 
 class State:
     def __init__(self, robots, tasks):
@@ -137,55 +141,90 @@ class MCTS:
 #     task = Task(round(random.uniform(0, 10), 2), round(random.uniform(0, 10), 2), random.randint(1, 3))
 #     tasks.append(task)
  
-# # 保存为txt文件
-filenameA = './config/tasks.data'
-# with open(filename, 'wb') as file:
-#     pickle.dump(tasks, file)
+# # # 保存为txt文件
+# filenameA = './config/tasks.data'
+# # with open(filename, 'wb') as file:
+# #     pickle.dump(tasks, file)
 
-# 从txt文件读取
-with open(filenameA, 'rb') as file:
-    tasks = pickle.load(file)
+# # 从txt文件读取
+# with open(filenameA, 'rb') as file:
+#     tasks = pickle.load(file)
 
-# 输出数组
-for task in tasks:
-    print(task.x, task.y, task.ability)
+# # 输出数组
+# for task in tasks:
+#     print(task.x, task.y, task.ability)
 
-
-# robots = [
-# Robot(random.randint(0, 10), random.randint(0, 10), [random.randint(1, 3)])
-# for _ in range(3)
-# ]
-
-
-filenameB = './config/robots.data' #二进制数据
+RobotSpawnMap = {}
+Map = {}
 mapData = 'Ros\scripts\mrga_tp\mrga_waypoints.txt'
-
-# 从txt文件读取
 with open(mapData, 'r') as file:
     for line in file:
-        print(line)
-        pass
-    robots = pickle.load(file)
+        name = line[:line.index('[')]
 
-# 从txt文件读取
-with open(filenameB, 'rb') as file:
-    robots = pickle.load(file)
+        Robotname = ''
+        RobotSpawnRegex = r"\{(.*?)\}"
+        RobotSpawnmatches = re.search(RobotSpawnRegex, line)
+        if RobotSpawnmatches:
+            Robotname = RobotSpawnmatches.group(1)
+
+        regex = r"\[(.*?)\]"
+        matches = re.search(regex, line)
+        if matches:
+            XYindex = matches.group(1).split(', ')
+
+        if Robotname:
+            RobotSpawnMap[Robotname] = XYindex
+        else:
+            Map[name]= XYindex
+    # robots = pickle.load(file)
 
 
-# 输出数组
-for robot in robots:
-    if robot.x == 1:
-        robot.abilities.append(2)
-    print(robot.x, robot.y, robot.abilities)
+# filenameB = './config/robots.data' #二进制数据
+# # 从txt文件读取
+# with open(filenameB, 'rb') as file:
+#     robots = pickle.load(file)
+
+robots = []
+robotData = 'Ros\scripts\mrga_tp\mrga_robots.txt'
+with open(robotData, 'r') as file:
+    for line in file:
+        name = line[:line.index('[')]
+        regex = r"\[(.*?)\]"
+        matches = re.search(regex, line)
+        if matches:
+            # 将匹配的子串拆分为数组
+            ablities = matches.group(1).split(', ')
+        robots.append(Robot(name, RobotSpawnMap[name][0],RobotSpawnMap[name][1], ablities))
+
+tasks = []
+taskssData = 'Ros\scripts\mrga_tp\mrga_goals.txt'
+with open(taskssData, 'r') as file:
+    for s in file:
+        name = s[s.index(' ') + 1:s.index(')')]
+        ability = s[s.index(')') + 1:].rstrip('\n')
+        tasks.append(Task(Map[name][0],Map[name][1],ability))
+
+
+
+
+# # 输出数组
+# for robot in robots:
+#     if robot.x == 1:
+#         robot.abilities.append(2)
+#     print(robot.x, robot.y, robot.abilities)
 
 # with open(filenameB, 'wb') as file:
 #     pickle.dump(robots, file)
 
+start_time = time.time()
 #初始化状态
 state = State(robots, tasks)
 
 #运行 MCTS 算法
 mcts = MCTS(state)
-best_action = mcts.run(1000)
+best_action = mcts.run(1250)
+end_time = time.time()
+
+print('time: ', end_time-start_time)
 print("Best action:", best_action)
 
