@@ -14,6 +14,8 @@ class Robot:
         self.task_times = []
 
     def can_do(self, task):
+        if task.index == -1:
+            return True
         if 'husky' in self.name:
             if 'a' in task.point:
                 return False
@@ -23,7 +25,7 @@ class Robot:
         return task is not None and task.ability in self.abilities
 
     def do_task(self, task):
-        if task != 'wait':
+        if task.index != -1:
             distance = math.sqrt((float(self.x) - float(task.x)) ** 2 + (float(self.y) - float(task.y)) ** 2)
             self.x = task.x
             self.y = task.y
@@ -58,24 +60,22 @@ class State:
                     new_robots = robots.copy()
                     new_robots.remove(robots[i])
                     new_tasks = tasks.copy()
-                    new_tasks.remove(tasks[j])
-                    if len(new_robots) != 0 and len(new_tasks) != 0:
+                    if tasks[j].index != -1:
+                        new_tasks.remove(tasks[j])
+                    if len(new_robots) != 0:
                         self.get_actions(new_robots,new_tasks,actions_list,actions)
                         actions.pop()
                     else:
-                        actions_list.append(actions.copy())
+                        # 一轮机器人任务分配完成
+                        flag = False
+                        for x in range(len(actions)):
+                            if actions[x][1] != -1: 
+                                flag = True
+                        # flag 为true表示机器人没有全部wait
+                        if flag:
+                            actions_list.append(actions.copy())
                         actions.pop()
                         pass
-                else:
-                    new_robots = robots.copy()
-                    new_robots.remove(robots[i])
-                    new_tasks = tasks.copy()
-                    if len(new_robots) != 0 and len(new_tasks) != 0:
-                        self.get_actions(new_robots,new_tasks,actions_list,actions)
-                        pass
-                    else:
-                        print('MISSION IMPOSIBLE')
-                    
 
     def get_actions_list(self):
         actions_list = []
@@ -85,15 +85,13 @@ class State:
     def apply_action(self, action):
         robot_index, task_index = action
         robot = self.robots[robot_index]
-        if task_index != 'wait':
-            task = self.tasks[task_index]
+        task = self.tasks[task_index]
+        if task_index != -1:
             self.tasks[task_index] = None
-        else:
-            task = 'wait'
         robot.do_task(task)
 
     def is_terminal(self):
-        return all(task is None for task in self.tasks)
+        return all(self.tasks[i] is None for i in range(len(self.tasks) -1))
 
     def get_reward(self):
         return max(robot.get_time() for robot in self.robots)
@@ -111,6 +109,7 @@ class Node:
         self.children = []
         if untried_actions == None:
             self.untried_actions = state.get_actions_list()
+            pass
         else:
             self.untried_actions = untried_actions
 
@@ -140,7 +139,7 @@ class Node:
 
     def is_fully_expanded(self):
         for i in range(len(self.untried_actions)):
-            if len(self.untried_actions[i]) != 1:
+            if len(self.untried_actions[i]) != 0:
                 return False
         return True
     
@@ -177,7 +176,8 @@ class MCTS:
         self.root = Node(state, None, None)
 
     def run(self, max_iterations):
-        for _ in range(max_iterations):
+        for i in range(max_iterations):
+            # print(i)
             node = self.root
             while not node.is_terminal():
                 if not node.is_fully_expanded():
@@ -219,7 +219,6 @@ mapData = 'Ros\scripts\mrga_tp\mrga_waypoints.txt'
 with open(mapData, 'r') as file:
     for line in file:
         name = line[:line.index('[')]
-
         Robotname = ''
         RobotSpawnRegex = r"\{(.*?)\}"
         RobotSpawnmatches = re.search(RobotSpawnRegex, line)
@@ -266,6 +265,7 @@ with open(taskssData, 'r') as file:
         ability = s[s.index(')') + 1:].rstrip('\n')
         tasks.append(Task(index, name,Map[name][0],Map[name][1],ability))
         index+=1
+    tasks.append(Task(-1, 'wait',0,0,'cap'))
 
 
 
@@ -286,7 +286,7 @@ state = State(robots, tasks)
 
 #运行 MCTS 算法
 mcts = MCTS(state)
-best_action = mcts.run(12200)
+best_action = mcts.run(500)
 end_time = time.time()
 
 print('time: ', end_time-start_time)
