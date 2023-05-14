@@ -29,7 +29,7 @@ class Robot:
             distance = math.sqrt((float(self.x) - float(task.x)) ** 2 + (float(self.y) - float(task.y)) ** 2)
             self.x = task.x
             self.y = task.y
-            self.task_times.append(distance)
+            self.task_times.append(distance+task.do_time)
         else:
             pass
 
@@ -37,12 +37,13 @@ class Robot:
         return sum(self.task_times)
 
 class Task:
-    def __init__(self,index, point,  x, y, ability):
+    def __init__(self,index, point,  x, y, ability, do_time):
         self.index = index
         self.point = point
         self.x = x
         self.y = y
         self.ability = ability
+        self.do_time = do_time
 
 
 class State:
@@ -67,6 +68,7 @@ class State:
                         actions.pop()
                     else:
                         # 一轮机器人任务分配完成
+                        tasks_not_allocate = 0
                         flag = False
                         for x in range(len(actions)):
                             if actions[x][1] != -1: 
@@ -149,13 +151,13 @@ class Node:
     def is_terminal(self):
         return self.state.is_terminal()
 
-    def select_child(self, exploration_constant=1.4):
-        max_score = -1
+    def select_child(self, exploration_constant=2):
+        max_score = -10000000
         selected_child = None
         for child in self.children:
             score = (
-                0 - child.visits / child.reward
-                + 1.41 * math.sqrt(2 * math.log(self.visits) / child.visits)
+                0 - child.reward
+                + exploration_constant * math.sqrt(2 * math.log(self.visits) / child.visits)
             )
             # print ('===')
             # print(0 - child.reward / child.visits)
@@ -167,7 +169,16 @@ class Node:
 
     def backpropagate(self, reward):
         self.visits += 1
-        self.reward += reward
+        if self.reward == 0:
+            self.reward = reward
+        else:
+            self.reward = self.reward if self.reward < reward else reward
+
+        if self.parent != None:
+            try:
+                self.parent.untried_actions.remove(self.action)
+            except ValueError:
+               pass
         if self.parent is not None:
             self.parent.backpropagate(reward)
 
@@ -179,20 +190,22 @@ class MCTS:
         for i in range(max_iterations):
             # print(i)
             node = self.root
+
             while not node.is_terminal():
                 if not node.is_fully_expanded():
                     child = node.expand()
                     node = child
                 else:
                     node = node.select_child()
+            
             reward = node.state.get_reward() 
             node.backpropagate(reward)
 
         best_child = self.root.children[0]
         for child in self.root.children:
-            if child.visits > best_child.visits:
+            if child.reward < best_child.reward:
                 best_child = child
-        return best_child.action
+        return best_child
 
 # #生成随机任务和机器人
 # tasks = []
@@ -247,6 +260,8 @@ robotData = 'Ros\scripts\mrga_tp\mrga_robots.txt'
 with open(robotData, 'r') as file:
     index = 0
     for line in file:
+        if line[0] == '#':
+            continue
         name = line[:line.index('[')]
         regex = r"\[(.*?)\]"
         matches = re.search(regex, line)
@@ -257,20 +272,23 @@ with open(robotData, 'r') as file:
         index+=1
 
 tasks = []
+tasks_do_time = {
+    'cap4': 15,
+    'cap5': 5,
+    'cap6': 20,
+    'cap7': 10,
+    'cap8': 10
+}
 taskssData = 'Ros\scripts\mrga_tp\mrga_goals.txt'
 with open(taskssData, 'r') as file:
     index = 0
     for s in file:
+        if s[0] == '#':
+            continue
         name = s[s.index(' ') + 1:s.index(')')]
         ability = s[s.index(')') + 1:].rstrip('\n')
-        tasks.append(Task(index, name,Map[name][0],Map[name][1],ability))
+        tasks.append(Task(index, name,Map[name][0],Map[name][1],ability,tasks_do_time[ability]))
         index+=1
-    tasks.append(Task(-1, 'wait',0,0,'cap'))
-
-
-
-
-
 # # 输出数组
 # for robot in robots:
 #     if robot.x == 1:
@@ -280,15 +298,65 @@ with open(taskssData, 'r') as file:
 # with open(filenameB, 'wb') as file:
 #     pickle.dump(robots, file)
 
-start_time = time.time()
+husky_robots = []
+auv_robots = []
+
+for robot in robots:
+    if "husky" in robot.name:
+        husky_robots.append(robot)
+    else:
+        auv_robots.append(robot)
+
+husky_tasks = []
+auv_tasks = []
+for task in tasks:
+    if "wpg" in task.point:
+        husky_tasks.append(task)
+    else:
+        auv_tasks.append(task)
 #初始化状态
-state = State(robots, tasks)
+
 
 #运行 MCTS 算法
-mcts = MCTS(state)
-best_action = mcts.run(500)
+start_time = time.time()
+
+robots = husky_robots
+tasks = husky_tasks
+index = 0
+for task in tasks:
+    task.index = index
+    index += 1
+tasks.append(Task(-1, 'wait',0,0,'cap',0))
+index = 0
+for robot in robots:
+    robot.index = index
+    index += 1
+husky_state = State(husky_robots, husky_tasks)
+husky_mcts = MCTS(husky_state)
+husky_actions = husky_mcts.run(140)
+husky_result = husky_actions.reward
 end_time = time.time()
+husky_time = end_time-start_time
+print('husky_time: ', husky_time, husky_result)
 
-print('time: ', end_time-start_time)
-print("Best action:", best_action)
+start_time = time.time()
 
+robots = auv_robots
+tasks = auv_tasks
+index = 0
+for task in tasks:
+    task.index = index
+    index += 1
+tasks.append(Task(-1, 'wait',0,0,'cap',0))
+index = 0
+for robot in robots:
+    robot.index = index
+    index += 1
+auv_state = State(auv_robots, auv_tasks)
+auv_mcts = MCTS(auv_state)
+auv_result = auv_mcts.run(150).reward
+end_time = time.time()
+auv_time = end_time-start_time
+print('auv_time: ', auv_time, auv_result)
+
+print("sum_time:", auv_time+husky_time, max(husky_result,auv_result))

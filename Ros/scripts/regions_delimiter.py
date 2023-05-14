@@ -228,8 +228,8 @@ class regions_delimiter(object):
             #===================================================================
             # weights factor
             #===================================================================
-            alpha = 0.5
-            beta = 0.5
+            alpha = 0.25
+            beta = 0.2
             for goal_set_indx in range(0, len(self.goals_index)):
                 self.costfunc = []
                 self.makespan_value = []
