@@ -80,6 +80,7 @@ class State:
                         pass
 
     def get_actions_list(self):
+
         actions_list = []
         self.get_actions(self.robots, self.tasks, actions_list)
         return actions_list
@@ -117,11 +118,15 @@ class Node:
 
 
     def expand(self): 
+        new_robots = copy.deepcopy(self.state.robots),
+        new_tasks = copy.deepcopy(self.state.tasks)
+
         new_state = State(
-            copy.deepcopy(self.state.robots),
+            new_robots,
             copy.deepcopy(self.state.tasks)
-        )     
-        # applied_actions = []
+        )    
+       
+        applied_actions = []
         # for i in range(len(self.untried_actions)):
         #     action = random.choice(self.untried_actions[i])
         #     if action[1] != 'wait':
@@ -164,7 +169,7 @@ class Node:
 
     def is_terminal(self):
         return self.state.is_terminal()
-
+    
     def select_child(self, exploration_constant=2):
         max_score = -10000000
         selected_child = None

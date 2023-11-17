@@ -16,7 +16,8 @@ from scipy.optimize import linear_sum_assignment
 from collections import Counter
 from linecache import getline
 # from std_srvs.srv import Empty, EmptyResponse
-# from mrga_msgs.srv import RegionsDelimiter, RegionsDelimiterResponse
+# from mrg
+# a_msgs.srv import RegionsDelimiter, RegionsDelimiterResponse
 
 class regions_delimiter(object):
 
