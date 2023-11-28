@@ -125,18 +125,6 @@ class Node:
             new_robots,
             copy.deepcopy(self.state.tasks)
         )    
-       
-        applied_actions = []
-        # for i in range(len(self.untried_actions)):
-        #     action = random.choice(self.untried_actions[i])
-        #     if action[1] != 'wait':
-        #         self.untried_actions[i].remove(action)
-        #         for i in range(len(self.untried_actions)):
-        #             for task in self.untried_actions[i]:
-        #                 if task[1] == action[1]:
-        #                     self.untried_actions[i].remove(task)
-        #     new_state.apply_action(action)
-        #     applied_actions.append(action)
             
         actions = random.choice(self.untried_actions)
         if self.parent == None:
@@ -178,9 +166,7 @@ class Node:
                 0 - child.reward
                 + exploration_constant * math.sqrt(2 * math.log(self.visits) / child.visits)
             )
-            # print ('===')
-            # print(0 - child.reward / child.visits)
-            # print(1.41 * math.sqrt(2 * math.log(self.visits) / child.visits))
+
             if score > max_score:
                 max_score = score
                 selected_child = child
