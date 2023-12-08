@@ -50,7 +50,6 @@ class State:
     def __init__(self, robots, tasks):
         self.robots = robots
         self.tasks = tasks
-        self.actions_list = []
 
     def get_actions(self,robots,tasks,actions_list,actions = []):
         i=0
@@ -116,22 +115,27 @@ class Node:
             self.untried_actions = untried_actions
 
 
+    def simulate(self):
+        current_state = copy.deepcopy(self.state)
+        while not current_state.is_terminal():
+            task = random.choice(current_state.tasks)
+            if task == None :
+                continue
+            if task.index == -1:
+                continue
+            while 1:
+                robot = random.choice(current_state.robots)
+                if robot.can_do(task):
+                    current_state.apply_action((robot.index,task.index))
+                    break
+                
+        return current_state.get_reward()
+    
     def expand(self): 
         new_state = State(
             copy.deepcopy(self.state.robots),
             copy.deepcopy(self.state.tasks)
         )     
-        # applied_actions = []
-        # for i in range(len(self.untried_actions)):
-        #     action = random.choice(self.untried_actions[i])
-        #     if action[1] != 'wait':
-        #         self.untried_actions[i].remove(action)
-        #         for i in range(len(self.untried_actions)):
-        #             for task in self.untried_actions[i]:
-        #                 if task[1] == action[1]:
-        #                     self.untried_actions[i].remove(task)
-        #     new_state.apply_action(action)
-        #     applied_actions.append(action)
             
         actions = random.choice(self.untried_actions)
         if self.parent == None:
@@ -173,9 +177,7 @@ class Node:
                 0 - child.reward
                 + exploration_constant * math.sqrt(2 * math.log(self.visits) / child.visits)
             )
-            # print ('===')
-            # print(0 - child.reward / child.visits)
-            # print(1.41 * math.sqrt(2 * math.log(self.visits) / child.visits))
+
             if score > max_score:
                 max_score = score
                 selected_child = child
@@ -191,7 +193,7 @@ class Node:
         if self.parent != None:
             try:
                 self.parent.untried_actions.remove(self.action)
-            except ValueError:
+            except ValueError:  
                pass
         if self.parent is not None:
             self.parent.backpropagate(reward)
@@ -211,12 +213,14 @@ class MCTS:
 
 
     def run(self, max_iterations):
+        start_time = time.time()
         for i in range(max_iterations):
             node = self.root
             if i%10 == 0:
-                print (i,self.root.reward )
+                print (i,round(time.time()-start_time,1),self.root.reward )
 
             while not node.is_terminal():
+                # 一定的循环次数之后, 假设100此迭代式第一个任务刚好做完, 之后的迭代从第一个任务已经完成的状态开始
                 if i > 100 and node.parent == None:
                     node = self.get_best_child(node)
 
@@ -224,11 +228,13 @@ class MCTS:
                     if not node.is_fully_expanded():
                         child = node.expand()
                         node = child
+                        reward = node.simulate()
+                        break
                     else:
                         print ('fully expanded' )
                         node = node.select_child()
             
-            reward = node.state.get_reward() 
+            # reward = node.state.get_reward() 
             
             node.backpropagate(reward)
 

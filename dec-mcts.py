@@ -90,6 +90,24 @@ class Node:
             self.untried_actions = state.actions_list
 
 
+
+    def simulate(self):
+        current_state = copy.deepcopy(self.state)
+        while not current_state.is_terminal():
+            task = random.choice(current_state.tasks)
+            if task == None :
+                continue
+            if task.index == -1:
+                continue
+            while 1:
+                robot = random.choice(current_state.robots)
+                if robot.can_do(task):
+                    current_state.apply_action((robot.index,task.index))
+                    break
+                
+        return current_state.get_reward()
+    
+    
     def expand(self): 
         new_state = State(
             copy.deepcopy(self.state.robot),
@@ -160,12 +178,15 @@ class MCTS:
 
 
     def run(self, max_iterations):
+        start_time = time.time()
         for i in range(max_iterations):
             node = self.root
             if i%10 == 0:
-                print (i,self.root.reward )
+                print (i,round(time.time()-start_time,1),self.root.reward )
+                
 
             while not node.is_terminal():
+                # 一定的循环次数之后, 假设100此迭代式第一个任务刚好做完, 之后的迭代从第一个任务已经完成的状态开始
                 if i > 100 and node.parent == None:
                     node = self.get_best_child(node)
 
@@ -173,11 +194,13 @@ class MCTS:
                     if not node.is_fully_expanded():
                         child = node.expand()
                         node = child
+                        reward = node.simulate()
+                        break
                     else:
                         print ('fully expanded' )
                         node = node.select_child()
             
-            reward = node.state.get_reward() 
+            # reward = node.state.get_reward() 
             
             node.backpropagate(reward)
 
