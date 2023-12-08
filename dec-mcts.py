@@ -51,6 +51,7 @@ class State:
         self.robot = robot
         self.tasks = tasks
         self.actions_list = []
+        self.able_task = []
         self.get_actions_list()
 
     def get_actions_list(self):
@@ -58,21 +59,21 @@ class State:
             if self.tasks[i] is not None:
                 if self.robot.can_do(self.tasks[i]):
                     self.actions_list.append(self.tasks[i].index)
-
+                    self.able_task.append(self.tasks[i].index)
 
     def apply_action(self, action):
         task_index = action
         robot = self.robot
         task = self.tasks[task_index]
         if task_index != -1:
-            self.tasks[task_index] = None
+            self.able_task.remove(task_index)
         robot.do_task(task)
 
     def is_terminal(self):
-        return len(self.actions_list) == 0
+        return len(self.able_task) == 0
 
     def get_reward(self):
-        return max(robot.get_time() for robot in self.robots)
+        return self.robot.get_time()
 
     def __str__(self):
         return f"State(robots={self.robots}, tasks={self.tasks})"
@@ -94,16 +95,9 @@ class Node:
     def simulate(self):
         current_state = copy.deepcopy(self.state)
         while not current_state.is_terminal():
-            task = random.choice(current_state.tasks)
-            if task == None :
-                continue
-            if task.index == -1:
-                continue
-            while 1:
-                robot = random.choice(current_state.robots)
-                if robot.can_do(task):
-                    current_state.apply_action((robot.index,task.index))
-                    break
+            task = random.choice(current_state.actions_list)
+            current_state.actions_list.remove(task)
+            current_state.apply_action(task)
                 
         return current_state.get_reward()
     
@@ -113,18 +107,16 @@ class Node:
             copy.deepcopy(self.state.robot),
             copy.deepcopy(self.state.tasks)
         )
-        actions = random.choice(self.state.untried_actions)
-
-        new_state.apply_action(actions)
-        new_node = Node(new_state, self, actions)
+        action = random.choice(self.state.actions_list)
+        
+        new_state.apply_action(action)
+        new_state.actions_list.remove(action)
+        new_node = Node(new_state, self, action)
         self.children.append(new_node)
         return new_node
 
     def is_fully_expanded(self):
-        for i in range(len(self.untried_actions)):
-            if len(self.untried_actions[i]) != 0:
-                return False
-        return True
+        return len(self.untried_actions) == 0
     
     def reward(self):
         return self.state.get_reward()
@@ -132,7 +124,7 @@ class Node:
     def is_terminal(self):
         return self.state.is_terminal()
 
-    def select_child(self, exploration_constant=2):
+    def select_child(self, exploration_constant=100):
         max_score = -10000000
         selected_child = None
         for child in self.children:
@@ -140,7 +132,7 @@ class Node:
                 0 - child.reward
                 + exploration_constant * math.sqrt(2 * math.log(self.visits) / child.visits)
             )
-            # print ('===')
+            # print ('===', child.reward, exploration_constant * math.sqrt(2 * math.log(self.visits) / child.visits), score)
             # print(0 - child.reward / child.visits)
             # print(1.41 * math.sqrt(2 * math.log(self.visits) / child.visits))
             if score > max_score:
@@ -197,7 +189,6 @@ class MCTS:
                         reward = node.simulate()
                         break
                     else:
-                        print ('fully expanded' )
                         node = node.select_child()
             
             # reward = node.state.get_reward() 
@@ -207,24 +198,7 @@ class MCTS:
 
         return self.root
 
-# #生成随机任务和机器人
-# tasks = []
-# for i in range(10):
-#     task = Task(round(random.uniform(0, 10), 2), round(random.uniform(0, 10), 2), random.randint(1, 3))
-#     tasks.append(task)
- 
-# # # 保存为txt文件
-# filenameA = './config/tasks.data'
-# # with open(filename, 'wb') as file:
-# #     pickle.dump(tasks, file)
 
-# # 从txt文件读取
-# with open(filenameA, 'rb') as file:
-#     tasks = pickle.load(file)
-
-# # 输出数组
-# for task in tasks:
-#     print(task.x, task.y, task.ability)
 
 RobotSpawnMap = {}
 Map = {}
@@ -326,18 +300,20 @@ index = 0
 for task in tasks:
     task.index = index
     index += 1
-tasks.append(Task(-1, 'wait',0,0,'cap',0))
+# tasks.append(Task(-1, 'wait',0,0,'cap',0))
 index = 0
 for robot in robots:
     robot.index = index
     index += 1
-husky_state = State(husky_robots, husky_tasks)
-husky_mcts = MCTS(husky_state)
-husky_actions = husky_mcts.run(2000)
-husky_result = husky_actions.reward
-end_time = time.time()
-husky_time = end_time-start_time
-print('husky_time: ', round(husky_time, 2), round(husky_result,2))
+
+for robot in husky_robots:
+    husky_state = State(robot, husky_tasks)
+    husky_mcts = MCTS(husky_state)
+    husky_actions = husky_mcts.run(200)
+    husky_result = husky_actions.reward
+    end_time = time.time()
+    husky_time = end_time-start_time
+    print('husky_time: ', round(husky_time, 2), round(husky_result,2))
 
 start_time = time.time()
 
