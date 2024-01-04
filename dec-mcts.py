@@ -126,6 +126,9 @@ class Node:
 
     def select_child(self, exploration_constant=100):
         max_score = -10000000
+        
+        # 此处自定义 self.exploration_constant 为 当前树的最优reward的 15%
+        exploration_constant = self.reward * 0.15
         selected_child = None
         for child in self.children:
             score = (
@@ -173,7 +176,8 @@ class MCTS:
         start_time = time.time()
         for i in range(max_iterations):
             node = self.root
-            if i%10 == 0:
+            if i%100 == 0:
+                pass
                 print (i,round(time.time()-start_time,1),self.root.reward )
                 
 
@@ -291,48 +295,39 @@ for task in tasks:
 #初始化状态
 
 
+#定义主程序
+def run_mcts(robots,tasks,name):
+    start_time = time.time()
+    index = 0
+    for task in tasks:
+        task.index = index
+        index += 1
+    index = 0
+    for robot in robots:
+        robot.index = index
+        index += 1
+    for robot in robots:
+        state = State(robot, tasks)
+        mcts = MCTS(state)
+        actions = mcts.run(201)
+        result = actions.reward
+        end_time = time.time()
+        diff_time = end_time-start_time
+        print(name+'time: ', round(diff_time, 2), round(result,2))
+    return round(result,2)
+
 #运行 MCTS 算法
 start_time = time.time()
-
-robots = husky_robots
-tasks = husky_tasks
-index = 0
-for task in tasks:
-    task.index = index
-    index += 1
-# tasks.append(Task(-1, 'wait',0,0,'cap',0))
-index = 0
-for robot in robots:
-    robot.index = index
-    index += 1
-
-for robot in husky_robots:
-    husky_state = State(robot, husky_tasks)
-    husky_mcts = MCTS(husky_state)
-    husky_actions = husky_mcts.run(200)
-    husky_result = husky_actions.reward
-    end_time = time.time()
-    husky_time = end_time-start_time
-    print('husky_time: ', round(husky_time, 2), round(husky_result,2))
+husky_result = run_mcts(husky_robots,husky_tasks,'husky')
+end_time = time.time()
+husky_time = end_time-start_time
+# print(husky_time)
 
 start_time = time.time()
-
-robots = auv_robots
-tasks = auv_tasks
-index = 0
-for task in tasks:
-    task.index = index
-    index += 1
-tasks.append(Task(-1, 'wait',0,0,'cap',0))
-index = 0
-for robot in robots:
-    robot.index = index
-    index += 1
-auv_state = State(auv_robots, auv_tasks)
-auv_mcts = MCTS(auv_state)
-auv_result = auv_mcts.run(200).reward
+auv_result = run_mcts(auv_robots,auv_tasks,'auv')
 end_time = time.time()
 auv_time = end_time-start_time
-print('auv_time: ', round(auv_time,2), round(auv_result,2))
+
+
 
 print("sum_time:", round(auv_time+husky_time,2), round(max(husky_result,auv_result),2))
