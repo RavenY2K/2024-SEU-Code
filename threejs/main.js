@@ -1,14 +1,14 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
-
-console.log(1123);
+import { Robots,axes } from "./robots";
+console.log("");
 // 场景、相机和渲染器
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(
   40,
   window.innerWidth / window.innerHeight,
   0.1,
-  1000 
+  1000
 );
 camera.position.set(16, 12, 18);
 const renderer = new THREE.WebGLRenderer();
@@ -60,22 +60,25 @@ const createFloor = (x, y, z, size = 5) => {
   const plat = new THREE.Group();
   const material = new THREE.MeshLambertMaterial({ color: 0x808080 });
   const geometry1 = new THREE.BoxGeometry(size * 0.8, 0.2, size);
-  const geometry2 = new THREE.BoxGeometry(size / 4, 0.2, size / 4);
-  const geometry4 = new THREE.BoxGeometry(size / 4, 0.1, size * 0.68);
+  const geometry2 = new THREE.BoxGeometry(size / 5, 0.2, size / 4);
+  const geometry4 = new THREE.BoxGeometry(size / 5, 0.1, size * 0.68);
 
   const cube1 = new THREE.Mesh(geometry1, material);
   const cube2 = new THREE.Mesh(geometry2, material);
   const cube3 = new THREE.Mesh(geometry2, material);
   const cube4 = new THREE.Mesh(geometry4, material);
-  cube2.position.set(size * 0.525, 0, size * 0.375);
-  cube3.position.set(size * 0.525, 0, -size * 0.375);
-  cube4.position.set(size * 0.525, -1, 0);
+  cube2.position.set(size * 0.5, 0, size * 0.375);
+  cube3.position.set(size * 0.5, 0, -size * 0.375);
+  cube4.position.set(size * 0.5, -1, 0);
+// CreateBuilding(2.5, 3, 0);
   cube4.rotation.x = (Math.PI / 180) * 38; //
   plat.add(cube1, cube2, cube3, cube4);
-  plat.children.forEach((cube) => {
-    cube.receiveShadow = true; // 允许立方体接收阴影
-    cube.castShadow = true; // 允许立方体投射阴影
-  });
+
+  // plat.children.forEach((cube) => {
+  //   cube.receiveShadow = true; // 允许立方体接收阴影
+  //   cube.castShadow = true; // 允许立方体投射阴影
+  // });
+
   plat.position.set(x, y, z);
 
   //   cube1.receiveShadow = true; // 允许立方体接收阴影
@@ -85,45 +88,45 @@ const createFloor = (x, y, z, size = 5) => {
   return plat;
 };
 
-// 创建三层平台和楼梯
+// 创建地基
 createPlatform(16.5, 16.5, 0, 0, 0);
 
+// 创建4栋楼之一
 const CreateBuilding = (x, y, rotate) => {
   const building = new THREE.Group();
   const platform2 = createFloor(x, 2, y);
-  const platform3 = createFloor(x, 4, y);
-  const platform4 = createFloor(x, 6, y);
-  building.add(platform2, platform3, platform4);
+  // const platform3 = createFloor(x, 4, y);
+  // const platform4 = createFloor(x, 6, y);
+  // const platform5 = createFloor(x, 8, y);
+  building.add(platform2);
+  // building.add(platform3, platform4, platform5);
   building.rotation.y = (Math.PI / 180) * rotate;
   scene.add(building);
 };
-CreateBuilding(2.5, 3, 0);
-CreateBuilding(2.5, 3, 90);
-CreateBuilding(2.5, 3, 180);
-CreateBuilding(2.5, 3, 270);
-// CreateBuilding(-2.5,-3)
+
+CreateBuilding(3, 2.5, 0);
+// CreateBuilding(0, 0, 0);
+CreateBuilding(3,2.5, 90);
+CreateBuilding(3,2.5, 180);
+CreateBuilding(3,2.5, 270);
 
 // 创建光球
-const sphereGeometry = new THREE.SphereGeometry(0.15);
+const sphereGeometry_hus = new THREE.SphereGeometry(0.15);
 const sphereGeometry_goal = new THREE.SphereGeometry(0.05);
-const sphereMaterial = new THREE.MeshBasicMaterial({ color: 0xeeeeee });
+const sphereMaterial_hus = new THREE.MeshBasicMaterial({ color: 0xeeeeee });
 const sphereMaterial_goal = new THREE.MeshBasicMaterial({ color: 0xff0000 });
-const sphere_hus1 = new THREE.Mesh(sphereGeometry, sphereMaterial);
-const sphere_hus2 = new THREE.Mesh(sphereGeometry, sphereMaterial);
+const sphere_hus1 = new THREE.Mesh(sphereGeometry_hus, sphereMaterial_hus);
+const sphere_hus2 = new THREE.Mesh(sphereGeometry_hus, sphereMaterial_hus);
 const sphere_goal1 = new THREE.Mesh(sphereGeometry_goal, sphereMaterial_goal);
 
-// 创建文本纹理
-function createTextTexture(text) {
-  const root = document.querySelector("body");
 
+function createTextTexture(text) {
   const canvas = document.createElement("canvas");
   const context = canvas.getContext("2d");
-  root.appendChild(canvas);
+
   canvas.width = 100;
   canvas.height = 50;
-  // context.fillStyle = '#999';
-  // context.fillRect(0, 0, canvas.width, canvas.height);
-  context.font = "50px Arial";
+  context.font = "40px Arial";
   context.fillStyle = "#999";
   context.fillText(text, 0, 50);
   return new THREE.CanvasTexture(canvas);
@@ -153,12 +156,22 @@ label_G1.position.set(0, 0.4, 0);
 const hus1 = new THREE.Group();
 hus1.add(sphere_hus1, label_hus1);
 hus1.position.set(1, 0.3, 0);
-scene.add(hus1);
+// scene.add(hus1);
 
 const hus2 = new THREE.Group();
 hus2.add(sphere_hus2, label_hus2);
 hus2.position.set(1, 0.3, 0);
-scene.add(hus2);
+// scene.add(hus2,hus1);
+
+
+for (const robot of Robots) {
+  console.log(robot)
+  scene.add(robot.robotObj)
+}
+
+for (const axe of axes) {
+  scene.add(axe.axeObj)
+}
 
 const G1 = new THREE.Group();
 G1.add(sphere_goal1, label_G1);
@@ -216,3 +229,4 @@ function animate() {
   controls.update();
 }
 animate();
+            
