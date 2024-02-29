@@ -1,4 +1,4 @@
-wpg0[22.3116, 14.3531, 0.66,NE_out_2,ground,robot_initial]{husky0}               ; position of the husky (wpg0 - wpg9) the initial positio
+wpg0[22.3116, 14.3531, 0.66,NE_out_2,ground,robot_initial]{husky0}               ; position of the husky (wpg0 - wpg9) the initial position
 wpg1[22.31, 17.07, 0.88,NE_out_3,ground,robot_initial]{husky1}                   ; is also the possible points to recharge
 wpg2[14.2332, -22.0538, 0.66,SE_out_2,ground,robot_initial]{husky2}
 wpg3[16.95, -22.0669, 0.88,SE_out_3,ground,robot_initial]{husky3}

@@ -1,7 +1,9 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+import { Goals } from "./Goals";
 import { Robots,axes } from "./robots";
-console.log("");
+
+
 // 场景、相机和渲染器
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(
@@ -95,11 +97,11 @@ createPlatform(16.5, 16.5, 0, 0, 0);
 const CreateBuilding = (x, y, rotate) => {
   const building = new THREE.Group();
   const platform2 = createFloor(x, 2, y);
-  // const platform3 = createFloor(x, 4, y);
-  // const platform4 = createFloor(x, 6, y);
-  // const platform5 = createFloor(x, 8, y);
+  const platform3 = createFloor(x, 4, y);
+  const platform4 = createFloor(x, 6, y);
+  const platform5 = createFloor(x, 8, y);
   building.add(platform2);
-  // building.add(platform3, platform4, platform5);
+  building.add(platform3, platform4, platform5);
   building.rotation.y = (Math.PI / 180) * rotate;
   scene.add(building);
 };
@@ -165,8 +167,11 @@ hus2.position.set(1, 0.3, 0);
 
 
 for (const robot of Robots) {
-  console.log(robot)
   scene.add(robot.robotObj)
+}
+
+for (const goal of Goals) {
+  scene.add(goal.goalObj)
 }
 
 for (const axe of axes) {
