@@ -56,17 +56,29 @@ export const pos = [
   [-1.43, -4.55, 6.15],
 ];
 const sphereGeometry_goal = new THREE.SphereGeometry(0.05);
-const sphereMaterial_goal = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+const sphereMaterial_goal_red = new THREE.MeshBasicMaterial({
+  color: 0xff0000,
+});
+const sphereMaterial_goal_green = new THREE.MeshBasicMaterial({
+  color: 0x00ff00,
+});
 
 export const Goals = pos.map(([x, y, z], index) => {
-  return {
+  const goal = {
     goalName: "G" + index,
     goalObj: createGoal("G" + index, x, y, z),
   };
+  goal.turnToGreen = function () {
+    goal.goalObj.children[0].material = sphereMaterial_goal_green;
+  };
+  return goal;
 });
 
 function createGoal(goalName, x, y, z) {
-  const sphere_goal1 = new THREE.Mesh(sphereGeometry_goal, sphereMaterial_goal);
+  const sphere_goal1 = new THREE.Mesh(
+    sphereGeometry_goal,
+    sphereMaterial_goal_red
+  );
 
   const goal = new THREE.Group();
   const nameLabel = createLabel(goalName);
@@ -92,7 +104,7 @@ function createTextTexture(text) {
 
   canvas.width = 100;
   canvas.height = 50;
-  context.font = "33px Arial";
+  context.font = "40px Arial";
   context.fillStyle = "#999";
   context.fillText(text, 0, 50);
   return new THREE.CanvasTexture(canvas);

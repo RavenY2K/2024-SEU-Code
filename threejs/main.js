@@ -1,8 +1,8 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { Goals } from "./Goals";
-import { Robots,axes } from "./robots";
-
+import { Robots, axes } from "./robots";
+import { routes, goalAchieveArr } from "./CreateRoutes";
 
 // 场景、相机和渲染器
 const scene = new THREE.Scene();
@@ -13,7 +13,13 @@ const camera = new THREE.PerspectiveCamera(
   1000
 );
 camera.position.set(16, 12, 18);
-const renderer = new THREE.WebGLRenderer();
+const renderer = new THREE.WebGLRenderer({
+  // antialias:true,
+  //alpha:true
+});
+renderer.physicallyCorrectLights = true;
+renderer.setPixelRatio(window.devicePixelRatio * 2);
+
 // renderer.shadowMap.enabled = true; // 启用阴影
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
@@ -72,7 +78,7 @@ const createFloor = (x, y, z, size = 5) => {
   cube2.position.set(size * 0.5, 0, size * 0.375);
   cube3.position.set(size * 0.5, 0, -size * 0.375);
   cube4.position.set(size * 0.5, -1, 0);
-// CreateBuilding(2.5, 3, 0);
+  // CreateBuilding(2.5, 3, 0);
   cube4.rotation.x = (Math.PI / 180) * 38; //
   plat.add(cube1, cube2, cube3, cube4);
 
@@ -108,9 +114,9 @@ const CreateBuilding = (x, y, rotate) => {
 
 CreateBuilding(3, 2.5, 0);
 // CreateBuilding(0, 0, 0);
-CreateBuilding(3,2.5, 90);
-CreateBuilding(3,2.5, 180);
-CreateBuilding(3,2.5, 270);
+CreateBuilding(3, 2.5, 90);
+CreateBuilding(3, 2.5, 180);
+CreateBuilding(3, 2.5, 270);
 
 // 创建光球
 const sphereGeometry_hus = new THREE.SphereGeometry(0.15);
@@ -120,7 +126,6 @@ const sphereMaterial_goal = new THREE.MeshBasicMaterial({ color: 0xff0000 });
 const sphere_hus1 = new THREE.Mesh(sphereGeometry_hus, sphereMaterial_hus);
 const sphere_hus2 = new THREE.Mesh(sphereGeometry_hus, sphereMaterial_hus);
 const sphere_goal1 = new THREE.Mesh(sphereGeometry_goal, sphereMaterial_goal);
-
 
 function createTextTexture(text) {
   const canvas = document.createElement("canvas");
@@ -165,73 +170,56 @@ hus2.add(sphere_hus2, label_hus2);
 hus2.position.set(1, 0.3, 0);
 // scene.add(hus2,hus1);
 
-
 for (const robot of Robots) {
-  scene.add(robot.robotObj)
+  scene.add(robot.robotObj);
 }
 
 for (const goal of Goals) {
-  scene.add(goal.goalObj)
+  scene.add(goal.goalObj);
 }
 
 for (const axe of axes) {
-  scene.add(axe.axeObj)
+  // scene.add(axe.axeObj)
 }
 
-const G1 = new THREE.Group();
-G1.add(sphere_goal1, label_G1);
-G1.position.set(1.5, 2.3, 5);
-scene.add(G1);
-
-//[ 0.5, 0.3 ,1.5]
-//[ 3.5, 0.3 ,1.5]
-//[ 4.5, 0.3 ,1.2]
-//[ 4.5, 2.3 ,-1.2]
-//[ 3.5, 0.3 ,1.5]
-// 动画混合器
-const mixer_hus1 = new THREE.AnimationMixer(hus1);
-const mixer_hus2 = new THREE.AnimationMixer(hus2);
-
-const clip = new THREE.AnimationClip("move", -1, [
-  new THREE.VectorKeyframeTrack(
-    ".position",
-    [0, 2, 4, 6, 16],
-    [0.5, 0.3, 6].concat(
-      [5, 0.3, 4.5],
-      [5, 2.3, 1.5],
-      [1.5, 2.3, 5],
-      [1.5, 2.3, 5]
-    )
-  ),
-]);
-const clip_hus2 = new THREE.AnimationClip("move", -1, [
-  new THREE.VectorKeyframeTrack(
-    ".position",
-    [0, 6, 12],
-    [0, 0.3, 6].concat(
-      [-5, 0.3, -4.5],
-      [-5, 0.3, -4.5],
-    )
-  ),
-]);
-
-const action = mixer_hus1.clipAction(clip);
-const action_hus2 = mixer_hus2.clipAction(clip_hus2);
-action.play();
-action_hus2.play();
-
-// 时钟
 const clock = new THREE.Clock();
 
 // 渲染循环
 function animate() {
+  const now = clock.elapsedTime;
+
+  Object.keys(goalAchieveArr).forEach((key) => {
+    const arr = goalAchieveArr[key];
+    if (arr.length === 0) return;
+    if (now > arr[0]) {
+      setGoalToGreen(key);
+      arr.shift();
+    }
+  });
   requestAnimationFrame(animate);
   renderer.render(scene, camera);
   // 更新动画混合器
   const delta = clock.getDelta();
-  mixer_hus1.update(delta);
-  mixer_hus2.update(delta);
+  Robots.forEach((robot) => {
+    if (robot.robotMixer) {
+      robot.robotMixer.update(delta);
+    }
+  });
+
   controls.update();
 }
+
+function setGoalToGreen(key) {
+  const goalName = routes[key].shift();
+  const goalIndex = +goalName.slice(1);
+  console.log("🚀 ~ setGoalToGreen ~ goalIndex:", goalIndex)
+  
+  Goals[goalIndex].turnToGreen();
+}
+// setInterval(() => {
+//   console.log(clock.elapsedTime);
+// }, 500);
+setTimeout(() => {
+  // Goals[0].turnToGreen();
+}, 1000);
 animate();
-            

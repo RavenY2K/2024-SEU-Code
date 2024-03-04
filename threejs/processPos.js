@@ -37,8 +37,6 @@ try {
     y = Math.abs(y) < 1 ?  y + (y>0?1:-1) : y;
     return [x, y, Number(height)];
   });
-  console.log(xy);
 } catch (err) {
-  console.error(err);
 }
 // Robots.map()
