@@ -48,7 +48,7 @@ class Task:
 
 RobotSpawnMap = {}
 Map = {}
-mapData = 'Ros\scripts\mrga_tp\mrga_waypoints.txt'
+mapData = 'Ros/scripts/mrga_tp/mrga_waypoints.txt'
 with open(mapData, 'r') as file:
     for line in file:
         name = line[:line.index('[')]
@@ -69,7 +69,7 @@ with open(mapData, 'r') as file:
             Map[name]= XYindex
 
 robots = []
-robotData = 'Ros\scripts\mrga_tp\mrga_robots.txt'
+robotData = 'Ros/scripts/mrga_tp/mrga_robots.txt'
 with open(robotData, 'r') as file:
     index = 0
     for line in file:
@@ -92,7 +92,7 @@ tasks_do_time = {
     'cap7': 10,
     'cap8': 10
 }
-tasksData = 'Ros\scripts\mrga_tp\mrga_goals.txt'
+tasksData = 'Ros/scripts/mrga_tp/mrga_goals.txt'
 with open(tasksData, 'r') as file:
     index = 0
     for s in file:
@@ -104,7 +104,7 @@ with open(tasksData, 'r') as file:
         index+=1
     tasks.append(Task(-1, 'wait',0,0,'cap',0))
 
-MrgaAllocationData = 'Ros\config\\allocation_solution.txt'
+MrgaAllocationData = 'Ros/config/allocation_solution.txt'
 with open(MrgaAllocationData, 'r') as file:
     index = 0
     for s in file:

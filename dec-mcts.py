@@ -232,7 +232,7 @@ def dec_mcts():
 
     RobotSpawnMap = {}
     Map = {}
-    mapData = 'Ros\scripts\mrga_tp\mrga_waypoints.txt'
+    mapData = 'Ros/scripts/mrga_tp/mrga_waypoints.txt'
     with open(mapData, 'r') as file:
         for line in file:
             name = line[:line.index('[')]
@@ -260,7 +260,7 @@ def dec_mcts():
     #     robots = pickle.load(file)
 
     robots = []
-    robotData = 'Ros\scripts\mrga_tp\mrga_robots.txt'
+    robotData = 'Ros/scripts/mrga_tp/mrga_robots.txt'
     with open(robotData, 'r') as file:
         index = 0
         for line in file:
@@ -283,7 +283,7 @@ def dec_mcts():
         'cap7': 10,
         'cap8': 10
     }
-    tasksData = 'Ros\scripts\mrga_tp\mrga_goals.txt'
+    tasksData = 'Ros/scripts/mrga_tp/mrga_goals.txt'
     with open(tasksData, 'r') as file:
         index = 0
         for s in file:
