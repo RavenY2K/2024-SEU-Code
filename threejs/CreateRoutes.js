@@ -1,13 +1,16 @@
 import * as THREE from "three";
 import { pos } from "./Goals";
 
-const MOVE_SPEED = 3;
-const UP_AND_DOWN_SPEED = 1.5;
+const MOVE_SPEED = 2;
+const UP_AND_DOWN_SPEED = 2;
 
 export const routes = {
   hus1: ["G0", "G1", "G13", "G2", "G14"],
-  hus2: ["G0", "G13"],
-  auv1: ["G0", "G39", "G30", "G28"],
+  hus2: ["G11", "G17","G14","G44"],
+  hus3: ["G3", "G38", "G31"],
+  hus4: ["G20", "G30", "G45"],
+  auv1: ["G27", "G42", "G49"],
+  auv2: ["G13", "G28", "G34"],
 };
 export const goalAchieveArr = {};
 
@@ -84,7 +87,7 @@ function processTimeSpan(timeSpanArr, posArr) {
         distance / (dx > 0.1 && dz > 0.1 ? MOVE_SPEED : UP_AND_DOWN_SPEED)
       ).toFixed(1)
     );
-    timeSpanArr.push(timeSpanArr[i - 1] + (time < 0.01 ? 0.3 : time));
+    timeSpanArr.push(timeSpanArr[i - 1] + (time < 0.01 ? 3 : time));
     if (time < 0.01) {
       GoalsTimeSpan.push(timeSpanArr[timeSpanArr.length - 1]);
     }

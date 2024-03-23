@@ -216,12 +216,15 @@ class MCTS:
         start_time = time.time()
         for i in range(max_iterations):
             node = self.root
-            if i%10 == 0:
+            if (i%100 == 0 and i<2000):
                 print (i,round(time.time()-start_time,1),self.root.reward )
-
+            else :
+                if (i%1000 == 0 ):
+                    print (i,round(time.time()-start_time,1),self.root.reward )
+ 
             while not node.is_terminal():
                 # 一定的循环次数之后, 假设100此迭代式第一个任务刚好做完, 之后的迭代从第一个任务已经完成的状态开始
-                if i > 100 and node.parent == None:
+                if i > 1500 and node.parent == None:
                     node = self.get_best_child(node)
 
                 else:
@@ -231,7 +234,7 @@ class MCTS:
                         reward = node.simulate()
                         break
                     else:
-                        print ('fully expanded' )
+                        # print ('fully expanded' )
                         node = node.select_child()
             
             # reward = node.state.get_reward() 
@@ -262,7 +265,7 @@ class MCTS:
 
 RobotSpawnMap = {}
 Map = {}
-mapData = 'Ros\scripts\mrga_tp\mrga_waypoints.txt'
+mapData = 'Ros/scripts/mrga_tp/mrga_waypoints.txt'
 with open(mapData, 'r') as file:
     for line in file:
         name = line[:line.index('[')]
@@ -290,7 +293,7 @@ with open(mapData, 'r') as file:
 #     robots = pickle.load(file)
 
 robots = []
-robotData = 'Ros\scripts\mrga_tp\mrga_robots.txt'
+robotData = 'Ros/scripts/mrga_tp/mrga_robots.txt'
 with open(robotData, 'r') as file:
     index = 0
     for line in file:
@@ -313,7 +316,7 @@ tasks_do_time = {
     'cap7': 10,
     'cap8': 10
 }
-taskssData = 'Ros\scripts\mrga_tp\mrga_goals.txt'
+taskssData = 'Ros/scripts/mrga_tp/mrga_goals.txt'
 with open(taskssData, 'r') as file:
     index = 0
     for s in file:
@@ -367,30 +370,31 @@ for robot in robots:
     index += 1
 husky_state = State(husky_robots, husky_tasks)
 husky_mcts = MCTS(husky_state)
-husky_actions = husky_mcts.run(2000)
+husky_actions = husky_mcts.run(20000)
 husky_result = husky_actions.reward
 end_time = time.time()
+
 husky_time = end_time-start_time
 print('husky_time: ', round(husky_time, 2), round(husky_result,2))
 
-start_time = time.time()
+# start_time = time.time()
 
-robots = auv_robots
-tasks = auv_tasks
-index = 0
-for task in tasks:
-    task.index = index
-    index += 1
-tasks.append(Task(-1, 'wait',0,0,'cap',0))
-index = 0
-for robot in robots:
-    robot.index = index
-    index += 1
-auv_state = State(auv_robots, auv_tasks)
-auv_mcts = MCTS(auv_state)
-auv_result = auv_mcts.run(200).reward
-end_time = time.time()
-auv_time = end_time-start_time
-print('auv_time: ', round(auv_time,2), round(auv_result,2))
+# robots = auv_robots
+# tasks = auv_tasks
+# index = 0
+# for task in tasks:
+#     task.index = index
+#     index += 1
+# tasks.append(Task(-1, 'wait',0,0,'cap',0))
+# index = 0
+# for robot in robots:
+#     robot.index = index
+#     index += 1
+# auv_state = State(auv_robots, auv_tasks)
+# auv_mcts = MCTS(auv_state)
+# auv_result = auv_mcts.run(200).reward
+# end_time = time.time()
+# auv_time = end_time-start_time
+# print('auv_time: ', round(auv_time,2), round(auv_result,2))
 
-print("sum_time:", round(auv_time+husky_time,2), round(max(husky_result,auv_result),2))
+# print("sum_time:", round(auv_time+husky_time,2), round(max(husky_result,auv_result),2))
