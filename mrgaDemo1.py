@@ -107,6 +107,7 @@ class Node:
         self.action = action
         self.reward = 0
         self.visits = 0
+        self.aveReward = 0
         self.children = []
         if untried_actions == None:
             self.untried_actions = state.get_actions_list()
@@ -169,15 +170,14 @@ class Node:
     def is_terminal(self):
         return self.state.is_terminal()
 
-    def select_child(self, exploration_constant=2):
+    def select_child(self, exploration_constant=20):
         max_score = -10000000
         selected_child = None
         for child in self.children:
             score = (
                 0 - child.reward
-                + exploration_constant * math.sqrt(2 * math.log(self.visits) / child.visits)
+                + self.reward * 0.15* math.sqrt(2 * math.log(self.visits) / child.visits)
             )
-
             if score > max_score:
                 max_score = score
                 selected_child = child
@@ -189,6 +189,7 @@ class Node:
             self.reward = reward
         else:
             self.reward = self.reward if self.reward < reward else reward
+        self.aveReward = (self.aveReward*(self.visits-1) + reward)/(self.visits)
 
         if self.parent != None:
             try:
@@ -216,16 +217,18 @@ class MCTS:
         start_time = time.time()
         for i in range(max_iterations):
             node = self.root
-            if (i%100 == 0 and i<2000):
+            if i%100 == 0:
+                print (i,round(time.time()-start_time,1),round(self.root.aveReward,1),round(self.root.reward,1) )
+                pass
+            if i == 10:
                 print (i,round(time.time()-start_time,1),self.root.reward )
-            else :
-                if (i%1000 == 0 ):
-                    print (i,round(time.time()-start_time,1),self.root.reward )
- 
+                pass
+
             while not node.is_terminal():
                 # 一定的循环次数之后, 假设100此迭代式第一个任务刚好做完, 之后的迭代从第一个任务已经完成的状态开始
                 if i > 1500 and node.parent == None:
                     node = self.get_best_child(node)
+                    pass
 
                 else:
                     if not node.is_fully_expanded():
@@ -334,48 +337,47 @@ with open(taskssData, 'r') as file:
 
 # with open(filenameB, 'wb') as file:
 #     pickle.dump(robots, file)
+for i in range(10):
+    husky_robots = []
+    auv_robots = []
 
-husky_robots = []
-auv_robots = []
+    for robot in robots:
+        if "husky" in robot.name:
+            husky_robots.append(robot)
+        else:
+            auv_robots.append(robot)
 
-for robot in robots:
-    if "husky" in robot.name:
-        husky_robots.append(robot)
-    else:
-        auv_robots.append(robot)
-
-husky_tasks = []
-auv_tasks = []
-for task in tasks:
-    if "wpg" in task.point:
-        husky_tasks.append(task)
-    else:
-        auv_tasks.append(task)
-#初始化状态
+    husky_tasks = []
+    auv_tasks = []
+    for task in tasks:
+        if "wpg" in task.point:
+            husky_tasks.append(task)
+        else:
+            auv_tasks.append(task)
+    #初始化状态
 
 
-#运行 MCTS 算法
-start_time = time.time()
+    #运行 MCTS 算法
+    start_time = time.time()
 
-robots = husky_robots
-tasks = husky_tasks
-index = 0
-for task in tasks:
-    task.index = index
-    index += 1
-tasks.append(Task(-1, 'wait',0,0,'cap',0))
-index = 0
-for robot in robots:
-    robot.index = index
-    index += 1
-husky_state = State(husky_robots, husky_tasks)
-husky_mcts = MCTS(husky_state)
-husky_actions = husky_mcts.run(20000)
-husky_result = husky_actions.reward
-end_time = time.time()
-
-husky_time = end_time-start_time
-print('husky_time: ', round(husky_time, 2), round(husky_result,2))
+    robots = husky_robots
+    tasks = husky_tasks
+    index = 0
+    for task in tasks:
+        task.index = index
+        index += 1
+    tasks.append(Task(-1, 'wait',0,0,'cap',0))
+    index = 0
+    for robot in robots:
+        robot.index = index
+        index += 1
+    husky_state = State(husky_robots, husky_tasks)
+    husky_mcts = MCTS(husky_state)
+    husky_actions = husky_mcts.run(1800)
+    husky_result = husky_actions.reward
+    end_time = time.time()
+    husky_time = end_time-start_time
+    print('husky_time: ', round(husky_time, 1), round(husky_result,2))
 
 # start_time = time.time()
 
