@@ -6,6 +6,7 @@ import { routes, goalAchieveArr } from "./CreateRoutes";
 
 // 场景、相机和渲染器
 const scene = new THREE.Scene();
+scene.background= new THREE.Color(0xAAAAAA)
 const camera = new THREE.PerspectiveCamera(
   40,
   window.innerWidth / window.innerHeight,
@@ -22,6 +23,7 @@ renderer.setPixelRatio(window.devicePixelRatio * 2);
 
 // renderer.shadowMap.enabled = true; // 启用阴影
 renderer.setSize(window.innerWidth, window.innerHeight);
+// window.addEventListener('resize',)
 document.body.appendChild(renderer.domElement);
 
 //controls
@@ -50,11 +52,10 @@ scene.add(light);
 // const sphereSize = 1;
 // const pointLightHelper = new THREE.PointLightHelper(pointLight, sphereSize);
 // scene.add(pointLightHelper);
-
 // 创建平台层
 const createPlatform = (xSize, zSize, x, y, z) => {
   const geometry = new THREE.BoxGeometry(xSize, 0.2, zSize);
-  const material = new THREE.MeshLambertMaterial({ color: 0x808080 });
+  const material = new THREE.MeshLambertMaterial({ color: 0xbbbbbb });
   const cube = new THREE.Mesh(geometry, material);
   cube.position.set(x, y, z);
   cube.receiveShadow = true; // 允许立方体接收阴影
@@ -66,7 +67,7 @@ const createPlatform = (xSize, zSize, x, y, z) => {
 const createFloor = (x, y, z, size = 5) => {
   //plat
   const plat = new THREE.Group();
-  const material = new THREE.MeshLambertMaterial({ color: 0x808080 });
+  const material = new THREE.MeshLambertMaterial({ color: 0xbbbbbb });
   const geometry1 = new THREE.BoxGeometry(size * 0.8, 0.2, size);
   const geometry2 = new THREE.BoxGeometry(size / 5, 0.2, size / 4);
   const geometry4 = new THREE.BoxGeometry(size / 5, 0.1, size * 0.68);

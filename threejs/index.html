@@ -16,23 +16,29 @@
   <body>
     <script type="module" src="main.js"></script>
     <!-- <script type="module" src="Goals.js"></script> -->
-    <script>
-      //   const root = document.querySelector("body");
+    <div style="display: flex;align-items: center;">
+      <textarea style="width: 
+      400px; height:100px;">G10 ,   G14 ,G6 ,  G20 ,  G31 ,  G23 , G13 ,  G44 ,G20 ,  G37 ,G47 ,  G51 ,   G29 ,  G45 ,G41 ,  G42 ,  G18 ,  G3,
+ ,G0 ,  G39 ,  G30 ,  G28 ,G1 ,  G13 ,  G2  ,,</textarea
+      >
+      <div style="display: flex; flex-flow: column wrap">
+        <button>MRGA运行</button>
+        <button>MCTS运行</button>
+        <button>Dec-MCTS运行</button>
+      </div>
+      <textarea name="" id="" cols="30" rows="10" style="width: 
+      400px; height:100px;">MRGA结果: 213.6s
+      
+hus1: ["G10", "G1", "G13", "G2", "G14"],
+hus2: ["G47", "G51", "G13", "G44"],
+hus3: ["G20", "G37", "G29", "G45"],
+hus4: ["G41", "G42", "G18", "G3"],
+auv1: ["G0", "G39", "G30", "G28"],
+auv2: ["G6", "G20", "G31", "G23"],
+      </textarea>
+      <button style="height: 100px;">开始模拟</button>
 
-      //   const canvas = document.createElement("canvas");
-      //   canvas.style.border='solid red 1px'
-      //   const ctx = canvas.getContext("2d");
-      //   root.appendChild(canvas);
-      //     canvas.width = 100;
-      //     canvas.height = 50;
-      //   //   ctx.fillStyle = "green";
-      //   //   ctx.fillRect(10, 10, 15, 15);
-      //   //   ctx.fillText('uav1',20,20)
-      //   ctx.fillStyle = "#999";
-      //   //   context.fillRect(0, 0, canvas.width, canvas.height);
-      //   ctx.font = "50px Arial";
-      //   //   context.fillStyle = "#000";
-      //   ctx.fillText("uav1", 0, 50);
-    </script>
+      
+    </div>
   </body>
 </html>
