@@ -200,7 +200,7 @@ def dec_mcts():
                 # for index in self.robot.allocated_tasks:
                 #     cur_root = cur_root.select_child_by_index(index)
                 start_time = time.time()
-                cur_allocated_task =  husky_allocated_tasks if 'husky' in self.robot.name else auv_allocated_tasks
+                cur_allocated_task =  husky_allocated_tasks if 'husky' in self.robot.name else uav_allocated_tasks
                 
                 
                 for i in range(max_iterations):
@@ -311,27 +311,27 @@ def dec_mcts():
 
     #初始化数据
     husky_robots = []
-    auv_robots = []
+    uav_robots = []
 
     for robot in robots:
         if "husky" in robot.name:
             husky_robots.append(robot)
         else:
-            auv_robots.append(robot)
+            uav_robots.append(robot)
 
     husky_tasks = []
-    auv_tasks = []
+    uav_tasks = []
     for task in tasks:
         if "wpg" in task.point:
             husky_tasks.append(task)
         else:
-            auv_tasks.append(task)
+            uav_tasks.append(task)
 
-    set_index([husky_robots,husky_tasks,auv_robots,auv_tasks])     
+    set_index([husky_robots,husky_tasks,uav_robots,uav_tasks])     
             
     # 最终工作顺序
     husky_allocated_tasks = []
-    auv_allocated_tasks = []
+    uav_allocated_tasks = []
 
 
     #定义主程序
@@ -339,7 +339,7 @@ def dec_mcts():
         start_time = time.time()
         all_mcts_tree = []
         
-        cur_allocated_tasks = husky_allocated_tasks if 'husky' in name else auv_allocated_tasks
+        cur_allocated_tasks = husky_allocated_tasks if 'husky' in name else uav_allocated_tasks
         for task in cur_allocated_tasks:
             tasks = [x for x in tasks if x.index not in cur_allocated_tasks]
             
@@ -356,8 +356,8 @@ def dec_mcts():
 
 
     def run_mcts(all_mcts_tree,name):
-        cur_allocated_tasks = husky_allocated_tasks if 'husky' in name else auv_allocated_tasks
-        cur_robots = husky_robots if 'husky' in name else auv_robots
+        cur_allocated_tasks = husky_allocated_tasks if 'husky' in name else uav_allocated_tasks
+        cur_robots = husky_robots if 'husky' in name else uav_robots
         for mcts in all_mcts_tree:
             cur_root = mcts.root
             for task_index in mcts.robot.allocated_tasks:
@@ -367,8 +367,8 @@ def dec_mcts():
         
 
     def allocateTask(result,name):
-        cur_allocated_tasks = husky_allocated_tasks if 'husky' in name else auv_allocated_tasks
-        cur_tasks =  husky_tasks if 'husky' in name else auv_tasks
+        cur_allocated_tasks = husky_allocated_tasks if 'husky' in name else uav_allocated_tasks
+        cur_tasks =  husky_tasks if 'husky' in name else uav_tasks
         for element in result:
             robot = element.robot
             cur_root = element.root
@@ -400,10 +400,10 @@ def dec_mcts():
 
 
     start_time = time.time()
-    auv_result = init_mcts(auv_robots,auv_tasks,'auv',101)
-    allocateTask(auv_result,'auv')
+    uav_result = init_mcts(uav_robots,uav_tasks,'uav',101)
+    allocateTask(uav_result,'uav')
     end_time = time.time()
-    auv_time = end_time-start_time
+    uav_time = end_time-start_time
 
     # run_mcts(husky_result,'husky')
     while len(husky_allocated_tasks) < len(husky_tasks):
@@ -424,7 +424,7 @@ def dec_mcts():
         final_score = cur_score if cur_score > final_score else final_score
         # print(robot.name,cur_score)
     pass
-    # print("sum_time:", round(auv_time+husky_time,2), round(max(husky_result,auv_result),2))
+    # print("sum_time:", round(uav_time+husky_time,2), round(max(husky_result,uav_result),2))
     return final_score
 
 results = []  # 创建一个列表来存储每一遍的最终结果

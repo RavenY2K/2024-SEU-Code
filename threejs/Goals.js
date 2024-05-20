@@ -62,6 +62,9 @@ const sphereMaterial_goal_red = new THREE.MeshBasicMaterial({
 const sphereMaterial_goal_green = new THREE.MeshBasicMaterial({
   color: 0x00ff00,
 });
+const sphereMaterial_goal_yellow = new THREE.MeshBasicMaterial({
+  color: 0xe5c06d,
+});
 
 export const Goals = pos.map(([x, y, z], index) => {
   const goal = {
@@ -71,13 +74,16 @@ export const Goals = pos.map(([x, y, z], index) => {
   goal.turnToGreen = function () {
     goal.goalObj.children[0].material = sphereMaterial_goal_green;
   };
+  goal.turnToRed = function () {
+    goal.goalObj.children[0].material = sphereMaterial_goal_red;
+  };
   return goal;
 });
 
 function createGoal(goalName, x, y, z) {
   const sphere_goal1 = new THREE.Mesh(
     sphereGeometry_goal,
-    sphereMaterial_goal_red
+    sphereMaterial_goal_yellow,
   );
 
   const goal = new THREE.Group();

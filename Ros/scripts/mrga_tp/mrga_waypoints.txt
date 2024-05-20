@@ -31,7 +31,7 @@ wpg52[-15.685, -1.32853, 6.06,SW_wp_1_2,ground,goal]
 wpg53[-6.22556, -1.43066, 6.06,SW_wp_1_3,ground,goal]
 wpg54[14.3369, -6.33414, 6.06,SE_wp_1_4,ground,goal]
 wpg55[11.556, -18.5961, 11.06,SE_up_ramp_1_2,ground,goal]
-wpa0[25, 25, 0.88,NE_out_0_1,air,robot_initial]{uav0}                            ; position of the auv (wpa0 - wpa9)
+wpa0[25, 25, 0.88,NE_out_0_1,air,robot_initial]{uav0}                            ; position of the uav (wpa0 - wpa9)
 wpa1[-25, 25, 0.88,NW_out_0_1,air,robot_initial]{uav1}
 wpa2[-25, -25, 0.88,SW_out_0_1,air,robot_initial]{uav2}
 wpa3[25, -25, 0.88,SE_out_0_1,air,robot_initial]{uav3}

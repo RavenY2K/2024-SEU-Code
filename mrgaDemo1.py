@@ -339,21 +339,21 @@ with open(taskssData, 'r') as file:
 #     pickle.dump(robots, file)
 for i in range(10):
     husky_robots = []
-    auv_robots = []
+    uav_robots = []
 
     for robot in robots:
         if "husky" in robot.name:
             husky_robots.append(robot)
         else:
-            auv_robots.append(robot)
+            uav_robots.append(robot)
 
     husky_tasks = []
-    auv_tasks = []
+    uav_tasks = []
     for task in tasks:
         if "wpg" in task.point:
             husky_tasks.append(task)
         else:
-            auv_tasks.append(task)
+            uav_tasks.append(task)
     #初始化状态
 
 
@@ -381,8 +381,8 @@ for i in range(10):
 
 # start_time = time.time()
 
-# robots = auv_robots
-# tasks = auv_tasks
+# robots = uav_robots
+# tasks = uav_tasks
 # index = 0
 # for task in tasks:
 #     task.index = index
@@ -392,11 +392,11 @@ for i in range(10):
 # for robot in robots:
 #     robot.index = index
 #     index += 1
-# auv_state = State(auv_robots, auv_tasks)
-# auv_mcts = MCTS(auv_state)
-# auv_result = auv_mcts.run(200).reward
+# uav_state = State(uav_robots, uav_tasks)
+# uav_mcts = MCTS(uav_state)
+# uav_result = uav_mcts.run(200).reward
 # end_time = time.time()
-# auv_time = end_time-start_time
-# print('auv_time: ', round(auv_time,2), round(auv_result,2))
+# uav_time = end_time-start_time
+# print('uav_time: ', round(uav_time,2), round(uav_result,2))
 
-# print("sum_time:", round(auv_time+husky_time,2), round(max(husky_result,auv_result),2))
+# print("sum_time:", round(uav_time+husky_time,2), round(max(husky_result,uav_result),2))

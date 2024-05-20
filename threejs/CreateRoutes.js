@@ -6,11 +6,11 @@ const UP_AND_DOWN_SPEED = 2;
 
 export const routes = {
   hus1: ["G10", "G1", "G13", "G2", "G14"],
-  hus2: ["G47", "G51", "G13", "G44"],
+  hus2: ["G12", "G51", "G44", "G47"],
   hus3: ["G20", "G37", "G29", "G45"],
   hus4: ["G41", "G42", "G18", "G3"],
-  auv1: ["G0", "G39", "G30", "G28"],
-  auv2: ["G6", "G20", "G31", "G23"],
+  uav1: ["G0", "G39", "G30", "G28"],
+  uav2: ["G6", "G20", "G31", "G23"],
 };
 export const goalAchieveArr = {};
 
@@ -18,9 +18,9 @@ export function createRoute(robot) {
   if (!routes[robot.robotName]) return;
 
   const posArr = [robot.robotInitPos];
-  if (robot.robotName.includes("auv")) {
-    const [auvX, auvY, auvZ] = robot.robotInitPos;
-    posArr.push([auvX, auvY + 0.7, auvZ]);
+  if (robot.robotName.includes("uav")) {
+    const [uavX, uavY, uavZ] = robot.robotInitPos;
+    posArr.push([uavX, uavY + 0.7, uavZ]);
   }
   const timeSpanArr = [0];
 
@@ -34,7 +34,7 @@ export function createRoute(robot) {
     if (robot.robotName.includes("hus")) {
       ProcessHusRoutes(x, y, z, posArr);
     } else {
-      ProcessAuvRoutes(x, y, z, posArr);
+      ProcessuavRoutes(x, y, z, posArr);
     }
   });
 
@@ -51,11 +51,13 @@ export function createRoute(robot) {
     ),
   ]);
   const action = mixer.clipAction(clip);
+  action.loop = THREE.LoopOnce; // 设置为只播放一次
+  action.clampWhenFinished = true; // 播放结束后保持最后一帧
   action.play();
   return mixer;
 }
 
-function ProcessAuvRoutes(x, y, z, posArr) {
+function ProcessuavRoutes(x, y, z, posArr) {
   let [preX, preY, preZ] = posArr[posArr.length - 1];
 
   if (Math.abs(preY - y) < 1) {

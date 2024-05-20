@@ -3,6 +3,11 @@
   <head>
     <meta charset="UTF-8" />
     <title>Three.js Demo</title>
+    <!-- Bootstrap CSS -->
+    <link
+      rel="stylesheet"
+      href="node_modules/bootstrap/dist/css/bootstrap.min.css"
+    />
     <style>
       body {
         margin: 0;
@@ -16,29 +21,150 @@
   <body>
     <script type="module" src="main.js"></script>
     <!-- <script type="module" src="Goals.js"></script> -->
-    <div style="display: flex;align-items: center;">
-      <textarea style="width: 
-      400px; height:100px;">G10 ,   G14 ,G6 ,  G20 ,  G31 ,  G23 , G13 ,  G44 ,G20 ,  G37 ,G47 ,  G51 ,   G29 ,  G45 ,G41 ,  G42 ,  G18 ,  G3,
- ,G0 ,  G39 ,  G30 ,  G28 ,G1 ,  G13 ,  G2  ,,</textarea
-      >
-      <div style="display: flex; flex-flow: column wrap">
-        <button>MRGA运行</button>
-        <button>MCTS运行</button>
-        <button>Dec-MCTS运行</button>
+    <div
+      style="
+        position: fixed;
+        right: 70px;
+        top: 62px;
+        width: 300px;
+        border: 1px solid lightgray;
+        border-radius: 5px;
+        padding: 10px;
+      "
+    >
+      <div class="mb-3">
+        <label for="exampleInputEmail1" class="form-label">折扣因子γ</label>
+        <input
+          type="email"
+          class="form-control"
+          id="exampleInputEmail1"
+          aria-describedby="emailHelp"
+          placeholder="0.99"
+        />
+        <div id="emailHelp" class="form-text">
+          介于0和1之间的值, 越小则机器人越短视, 默认值0.99
+        </div>
       </div>
-      <textarea name="" id="" cols="30" rows="10" style="width: 
-      400px; height:100px;">MRGA结果: 213.6s
-      
-hus1: ["G10", "G1", "G13", "G2", "G14"],
-hus2: ["G47", "G51", "G13", "G44"],
-hus3: ["G20", "G37", "G29", "G45"],
-hus4: ["G41", "G42", "G18", "G3"],
-auv1: ["G0", "G39", "G30", "G28"],
-auv2: ["G6", "G20", "G31", "G23"],
-      </textarea>
-      <button style="height: 100px;">开始模拟</button>
+      <div class="mb-3">
+        <label for="exampleInputEmail1" class="form-label">动态UCT系数</label>
+        <input
+          class="form-control"
+          id="exampleInputEmail1"
+          aria-describedby="emailHelp"
+          placeholder="0.15"
+        />
+        <div id="emailHelp" class="form-text">
+          介于0和1之间的值, 越大则智能体越偏向探索, 默认值0.15
+        </div>
+      </div>
 
+      <div class="mb-3">
+        <label for="exampleInputEmail1" class="form-label"
+          >能力稀有度系数</label
+        >
+        <input
+          type="email"
+          class="form-control"
+          id="exampleInputEmail1"
+          aria-describedby="emailHelp"
+          placeholder="0.2"
+        />
+        <div id="emailHelp" class="form-text">
+          介于0和1之间的值, 越大则智能体越加重视个体任务, 默认值0.2
+        </div>
+      </div>
       
+      <div class="mb-3">
+        <label for="exampleInputEmail1" class="form-label"
+          >重要性采样个数</label
+        >
+        <select class="form-select" aria-label="Default select example">
+          <option selected>4</option>
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="5">5</option>
+          <option value="6">6</option>
+          <option value="7">7</option>
+          <option value="8">8</option>
+        </select>
+        <div id="emailHelp" class="form-text">
+          大于0的整数, 越大则智能体意图共享越详细, 默认值4
+        </div>
+      </div>
+      <div class="mb-3">
+        <label for="exampleInputEmail1" class="form-label">并行化线程数</label>
+        <select class="form-select" aria-label="Default select example">
+          <option selected>3</option>
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">4</option>
+        </select>
+        <div id="emailHelp" class="form-text">大于0的整数, 默认值3</div>
+      </div>
+      <div class="mb-3">
+        <label for="exampleInputEmail1" class="form-label">播放速度</label>
+
+        <input
+          type="range"
+          class="form-range"
+          min="0"
+          max="5"
+          step="0.5"
+          id="customRange3"
+        />
+        <div id="emailHelp" class="form-text">介于0和2之间的值,默认为1</div>
+      </div>
+    </div>
+
+    <div style="display: flex; align-items: center; justify-content: center">
+      <form class="form-floating" style="display: none;">
+        <textarea  style="width: 300px; height: 200px;margin-right: 10px;" class="form-control is-invalid" id="floatingInputInvalid" placeholder="name@example.com" value="G10 , G14 ,G6 ,  G20 ,  G31 ,  G23 , G13 ,  G44 ,G20 ,  G37 ,G47 , G51 ,   G29 ,  G45 ,G41 ,  G42 ,  G18 ,G3, G0 ,  G39 ,  G30 ,  G28 ,G1 ,  G12 ,  G2 "></textarea>
+        <label for="floatingInputInvalid">格式错误，请输入合法任务并以逗号分隔</label>
+      </form>
+      <div>
+        <h3>任务输入</h3>
+        <textarea style="width: 300px; height: 200px" class="form-control">
+G10 , G14 ,G6 ,  G20 ,  G31 ,  G23 , G13 ,  G44 ,G20 ,  G37 ,G47 , G51 ,   G29 ,  G45 ,G41 ,  G42 ,  G18 ,G3, G0 ,  G39 ,  G30 ,  G28 ,G1 ,  G12 ,  G2 </textarea
+        >
+      </div>
+
+      <div style="display: flex; flex-flow: column wrap; margin: 0px 30px">
+        <button class="btn btn-outline-dark" >检测输入</button>
+        <button class="btn btn-outline-dark" disabled>运行MRGA</button>
+        <button class="btn btn-outline-dark" disabled >运行D-UBMCTS</button>
+        <button class="btn btn-outline-dark"  disabled>运行PED-MCTS</button>
+      </div>
+      <div>
+        <h3>运行输出</h3>
+        <textarea
+          class="form-control"
+          name=""
+          id=""
+          style="width: 300px; height: 200px"
+        >
+MCTS结果: 199.8s
+      
+hus1: [G10, G1, G13, G2, G14],
+hus2: [G47, G51, G12, G44],
+hus3: [G20, G37, G29, G45],
+hus4: [G41, G42, G18, G3],
+uav1: [G0, G39, G30, G28],
+uav2: [G6, G20, G31, G23],</textarea>
+      </div>
+    </div>
+    <div style="margin: -38px auto 18px auto; width: 190px">
+      <button onClick="window.resumeRobots()" class="btn btn-outline-primary">
+        开始模拟
+      </button>
+      <button onClick="window.pauseRobots()" class="btn btn-outline-primary">
+        暂停模拟
+      </button>
     </div>
   </body>
 </html>
+<style>
+  body {
+    padding: 20px;
+  }
+</style>

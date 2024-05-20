@@ -12,6 +12,8 @@ errors1 = [11, 13, 15, 11, 12] # 误差值，假设为标准差
 
 plt.errorbar(x, y1, yerr=errors1, fmt='-o', label='4Robots-12Tasks',capsize=4,color='r')
 plt.errorbar(x, y2, yerr=errors1, fmt='-s', label='4Robots-20Tasks',capsize=4,color='black')
+plt.ylim((0, 160))
+plt.xlim((-0.05, 0.45))
 
 plt.xlabel('k value')
 plt.ylabel('Time(s)')

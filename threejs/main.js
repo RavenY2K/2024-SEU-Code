@@ -6,13 +6,8 @@ import { routes, goalAchieveArr } from "./CreateRoutes";
 
 // 场景、相机和渲染器
 const scene = new THREE.Scene();
-scene.background= new THREE.Color(0xAAAAAA)
-const camera = new THREE.PerspectiveCamera(
-  40,
-  window.innerWidth / window.innerHeight,
-  0.1,
-  1000
-);
+scene.background = new THREE.Color(0xaaaaaa);
+const camera = new THREE.PerspectiveCamera(40, 800 / 600, 0.1, 1000);
 camera.position.set(16, 12, 18);
 const renderer = new THREE.WebGLRenderer({
   // antialias:true,
@@ -22,9 +17,11 @@ renderer.physicallyCorrectLights = true;
 renderer.setPixelRatio(window.devicePixelRatio * 2);
 
 // renderer.shadowMap.enabled = true; // 启用阴影
-renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setSize(800, 600);
 // window.addEventListener('resize',)
 document.body.appendChild(renderer.domElement);
+renderer.domElement.style.display = "block";
+renderer.domElement.style.margin = "0 auto";
 
 //controls
 const controls = new OrbitControls(camera, renderer.domElement);
@@ -183,11 +180,34 @@ for (const axe of axes) {
   // scene.add(axe.axeObj)
 }
 
-const clock = new THREE.Clock();
+let customClock = {
+  elapsedTime: 0,
+  lastTimestamp: performance.now(),
+  update: function() {
+    if (isRobotAnimating) {
+      let currentTimestamp = performance.now();
+      this.elapsedTime += (currentTimestamp - this.lastTimestamp) / 1000; // convert to seconds
+    }
+    this.lastTimestamp = performance.now();
+  }
+};
 
+`G10, G1, G13, G2, G14,
+G47, G51, G12, G44,
+G20, G37, G29, G45,
+G41, G42, G18, G3,
+G0, G39, G30, G28,
+G6, G20, G31, G23,`.split(',').forEach(index=>{
+  //删去item空格
+  index = Number(index.trim().slice(1));
+    Goals[index].turnToRed();
+})
+const clock = new THREE.Clock();
+let isRobotAnimating = true;
 // 渲染循环
 function animate() {
-  const now = clock.elapsedTime;
+  customClock.update();
+  const now = customClock.elapsedTime;
 
   Object.keys(goalAchieveArr).forEach((key) => {
     const arr = goalAchieveArr[key];
@@ -201,26 +221,34 @@ function animate() {
   renderer.render(scene, camera);
   // 更新动画混合器
   const delta = clock.getDelta();
-  Robots.forEach((robot) => {
-    if (robot.robotMixer) {
-      robot.robotMixer.update(delta);
-    }
-  });
+  if (isRobotAnimating) {
+    Robots.forEach((robot) => {
+      if (robot.robotMixer) {
+        robot.robotMixer.update(delta);
+      }
+    });
+  }
 
   controls.update();
 }
+function pauseRobots() {
+  isRobotAnimating = false;
+}
 
+function resumeRobots() {
+  isRobotAnimating = true;
+}
+
+window.pauseRobots= pauseRobots;
+window.resumeRobots= resumeRobots;
 function setGoalToGreen(key) {
   const goalName = routes[key].shift();
   const goalIndex = +goalName.slice(1);
-  console.log("🚀 ~ setGoalToGreen ~ goalIndex:", goalIndex)
-  
+  console.log("🚀 ~ setGoalToGreen ~ goalIndex:", key ,goalIndex);
+
   Goals[goalIndex].turnToGreen();
 }
 // setInterval(() => {
 //   console.log(clock.elapsedTime);
 // }, 500);
-setTimeout(() => {
-  // Goals[0].turnToGreen();
-}, 1000);
 animate();

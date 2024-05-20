@@ -5,7 +5,7 @@ let x = 1;
 const sphereGeometry_hus = new THREE.SphereGeometry(0.15);
 const sphereMaterial_hus = new THREE.MeshBasicMaterial({ color: 0xeeeeee });
 
-const robotNames = ["hus1", "hus2", "hus3", "hus4", "auv1", "auv2"];
+const robotNames = ["hus1", "hus2", "hus3", "hus4", "uav1", "uav2"];
 
 const axesName = ["-5,-3.75", "-5,-1.25", "-1.25,5","-3.75,5","1.25,-5","3.75,-5", "5,5", "5,3.75", "5,1.25"];
 
